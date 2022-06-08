@@ -8,9 +8,16 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
 import {TouchableOpacity, ScrollView, KeyboardAvoidingView} from 'react-native';
 import LoginWallet from './LoginWallet';
+import bip39 from 'react-native-bip39';
+
 export default function Index(props) {
   let navigation = props.navigation;
   const [status, setStatus] = useState('');
+  const [mnemonic, setMnemonic] = useState(
+    'crystal silk squeeze arrive inject list satoshi focus near garlic stool need lock tray canoe embody rescue scrub clump cycle few riot shiver tobacco',
+  );
+  let name = 'nntruong',
+    password = '123456';
   const onBack = () => setStatus('');
   const user = useShallowEqualSelector(state => {
     return state.user;
@@ -22,6 +29,17 @@ export default function Index(props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const account = async () => {
+    let _mnemonic;
+    try {
+      _mnemonic = await bip39.generateMnemonic(256);
+      setMnemonic(_mnemonic);
+      console.log('xxxx', _mnemonic);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   return (
     <Box p="4" h="full" bg="white">
       <Box h="30px">
@@ -76,7 +94,7 @@ export default function Index(props) {
                   {...styles.buttonPhone}
                   variant="outline"
                   onPress={() => {
-                    navigation.navigate('Main');
+                    account();
                   }}>
                   Sign up as New User
                 </Button>
