@@ -110,6 +110,7 @@ export default function Home(props) {
           title={Constants.isManager(user.role) ? 'New Request' : ''}
           hideSort={true}
           renderItem={Constants.isManager(user.role) ? renderDocumentItem : ''}
+          isManager={Constants.isManager(user.role)}
         />
       </Box>
     </Box>

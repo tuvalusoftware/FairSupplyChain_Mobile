@@ -12,8 +12,8 @@ const initialModel = {
     avatar:
       'https://www.google.com/url?sa=i&url=https%3A%2F%2Fvi.fanpop.com%2Fclubs%2Frandom%2Fpicks%2Fshow%2F457119%2Favatar-aang-naruto-uzumaki-who-would-win-fight&psig=AOvVaw1_9IFfMIyW14aq3xWLwRDe&ust=1654574494460000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCJD4mLz4l_gCFQAAAAAdAAAAABAD',
   },
-  isLogged: true,
-  role: 3,
+  isLogged: false,
+  role: 2,
 };
 
 export const Slice = createSlice({
