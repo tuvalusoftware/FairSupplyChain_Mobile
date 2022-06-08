@@ -42,7 +42,7 @@ export default function Main(props) {
           component={Documents}
           options={{
             headerShown: true,
-            tabBarLabel: 'Home',
+            tabBarLabel: 'Docs',
             title: 'All Requests',
             tabBarIcon: ({color, size}) => (
               <MaterialCommunityIcons

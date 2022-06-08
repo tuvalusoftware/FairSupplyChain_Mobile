@@ -30,7 +30,9 @@ export default function ListDocument(props) {
           <ButtonLink
             text="See all"
             icon="open-in-new"
-            onPress={() => navigation.navigate('Documents')}
+            onPress={() =>
+              navigation.navigate(props.isManager ? 'Docs' : 'Documents')
+            }
           />
         </Flex>
       )}
