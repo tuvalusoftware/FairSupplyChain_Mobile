@@ -19,6 +19,16 @@ import {LogBox} from 'react-native';
 import {Provider} from 'react-redux';
 import rootReducer from './src/redux/store';
 LogBox.ignoreLogs(['NativeBase:']);
+import * as HaskellShelley from './src/libs/HaskellShelley';
+import * as CardanoMessageSigning from './src/libs/CardanoMessageSigning';
+try {
+  console.log('HaskellShelley');
+  console.log(HaskellShelley);
+  console.log('CardanoMessageSigning');
+  console.log(CardanoMessageSigning);
+} catch (e) {
+  console.log(e);
+}
 // const _contentContainerStyle = {flexGrow: 1};
 
 const Stack = createNativeStackNavigator();
