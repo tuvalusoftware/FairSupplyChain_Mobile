@@ -226,3 +226,27 @@ task copyDownloadableDepsToLibs(type: Copy) {
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
+def DEFAULT_NDK_API_LEVEL = 21
+
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
+apply plugin: 'maven-publish'
+apply plugin: 'org.mozilla.rust-android-gradle.rust-android'
+
+cargo {
+    profile = 'release'
+    module = '../../rust'
+    libname = 'react_native_haskell_shelley'
+    targets = ['arm', 'arm64', 'x86_64']
+    apiLevel = safeExtGet('ndkApiLevel', DEFAULT_NDK_API_LEVEL)
+    prebuiltToolchains = true
+}
+
+tasks.whenTaskAdded { task ->
+    if ((task.name == 'javaPreCompileDebug' || task.name == 'javaPreCompileRelease')) {
+        task.dependsOn 'cargoBuild'
+    }
+}

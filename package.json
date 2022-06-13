@@ -10,6 +10,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@emurgo/cardano-message-signing-asmjs": "^1.0.1",
     "@react-native-community/clipboard": "^1.5.1",
     "@react-navigation/bottom-tabs": "^6.3.1",
     "@react-navigation/native": "^6.0.10",
