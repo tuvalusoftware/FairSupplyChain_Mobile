@@ -152,7 +152,7 @@ export default function Index(props) {
           <Switch
             size="md"
             onValueChange={onChangeNetwork}
-            disabled //disabled switch
+            // disabled //disabled switch
             value={status}
           />
           <Text ml="8px">Testnet</Text>

@@ -27,6 +27,7 @@ import {
 } from './src/util/script';
 import useShallowEqualSelector from './src/redux/customHook/useShallowEqualSelector';
 import {NETWORK_ID, NODE} from './src/util/Constants';
+import SplashScreen from 'react-native-splash-screen';
 LogBox.ignoreLogs(['NativeBase:']);
 
 // const _contentContainerStyle = {flexGrow: 1};
@@ -117,6 +118,7 @@ const App = () => {
     requestCameraPermission();
     initNetwork();
     _getBalanceFirstTime();
+    SplashScreen.hide();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const isDarkMode = useColorScheme() === 'dark';
