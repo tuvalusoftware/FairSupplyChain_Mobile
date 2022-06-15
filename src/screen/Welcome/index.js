@@ -1,14 +1,19 @@
 import React, {useState, useEffect} from 'react';
 import styles from './styles';
 import {Button, Box, Center, Text, Image} from 'native-base';
-import {Link} from '@react-navigation/native';
+// import {Link} from '@react-navigation/native';
 import logo from '../../images/logo.png';
 import LoginPrivateKey from './LoginPrivatekey';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
 import {TouchableOpacity, ScrollView, KeyboardAvoidingView} from 'react-native';
 import LoginWallet from './LoginWallet';
+import {createWallet} from '../../util/script';
 import bip39 from 'react-native-bip39';
+// import * as HaskellShelley from '../../libs/HaskellShelley';
+// import * as CardanoMessageSigning from '../../libs/CardanoMessageSigning';
+import Constants, {getStorage} from '../../util/Constants';
+const STORAGE = Constants.STORAGE;
 
 export default function Index(props) {
   let navigation = props.navigation;
@@ -28,15 +33,24 @@ export default function Index(props) {
       navigation.navigate('Main');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user.isLogged]);
   const account = async () => {
+    const checkStore = await getStorage(STORAGE.encryptedKey);
+    // const accounts = await getStorage(STORAGE.network);
+    console.log('checkStore', checkStore);
+
     let _mnemonic;
     try {
-      _mnemonic = await bip39.generateMnemonic(256);
-      setMnemonic(_mnemonic);
-      console.log('xxxx', _mnemonic);
+      if (!checkStore) {
+        _mnemonic = await bip39.generateMnemonic(256);
+        setMnemonic(_mnemonic);
+        await createWallet(name, _mnemonic, password);
+      }
+      // console.log('checkStore', checkStore);
+      // const index = await createAccount(name, password);
+      // console.log('createAccount', index);
     } catch (e) {
-      console.log(e);
+      console.log('account', e);
     }
   };
 

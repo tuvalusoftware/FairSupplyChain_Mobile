@@ -18,7 +18,7 @@ export default function AccountButton() {
         USER
       </Avatar>
       <Text bold fontSize={16} ml="6px" mr="6px">
-        {user.userInfo.id}
+        {user.userInfo.name}
       </Text>
       <MaterialCommunityIcons
         name="check-decagram"

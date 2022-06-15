@@ -41,7 +41,7 @@ export default function ListDocument(props) {
           </Text>
           <Select
             selectedValue={sort}
-            minWidth="60px"
+            minWidth="100px"
             borderWidth={0}
             color="black"
             fontWeight="bold"
