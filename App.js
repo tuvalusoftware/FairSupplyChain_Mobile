@@ -7,7 +7,7 @@
  * @flow strict-local
  */
 
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StatusBar, useColorScheme} from 'react-native';
 import {NativeBaseProvider} from 'native-base';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -35,7 +35,11 @@ LogBox.ignoreLogs(['NativeBase:']);
 const Stack = createNativeStackNavigator();
 const App = () => {
   const dispatch = useDispatch();
-  const network = useShallowEqualSelector(state => state.user?.network);
+  const {isLogged, network} = useShallowEqualSelector(state => ({
+    network: state.user?.network,
+    isLogged: state.user.isLogged,
+  }));
+  const [isLoading, setIsLoading] = useState(true);
   console.log('App network', network);
   const initNetwork = async () => {
     let _network = await getNetwork();
@@ -66,14 +70,21 @@ const App = () => {
   const initUser = async () => {
     try {
       let account = await getCurrentAccount();
-      dispatch(
-        userSliceActions.setData({
-          userInfo: account,
-          isLogged: true,
-        }),
-      );
+      if (account) {
+        console.log('account', account);
+        dispatch(
+          userSliceActions.setData({
+            userInfo: account,
+            isLogged: true,
+          }),
+        );
+      }
     } catch (err) {
       console.log('App Error', err);
+    }
+    setIsLoading(false);
+    if (isLoading) {
+      setTimeout(() => SplashScreen.hide(), 500);
     }
   };
   const requestCameraPermission = async () => {
@@ -118,10 +129,14 @@ const App = () => {
     requestCameraPermission();
     initNetwork();
     _getBalanceFirstTime();
-    SplashScreen.hide();
+    // SplashScreen.hide();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const isDarkMode = useColorScheme() === 'dark';
+  console.log('isLogged', isLogged);
+  if (isLoading) {
+    return null;
+  }
   return (
     <NavigationContainer>
       <NativeBaseProvider>
@@ -133,7 +148,7 @@ const App = () => {
               _contentContainerStyle={_contentContainerStyle}> */}
           {/* <Header /> */}
           <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-          <Stack.Navigator initialRouteName="Welcome">
+          <Stack.Navigator initialRouteName={isLogged ? 'Main' : 'Welcome'}>
             {routes.map((item, index) => {
               return <Stack.Screen {...item} key={index} />;
             })}

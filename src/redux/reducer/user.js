@@ -16,6 +16,8 @@ const initialModel = {
   isLogged: false,
   role: 2,
   network: 'mainnet',
+  connectedAuthServer: false,
+  isOpenLoginModal: false,
 };
 
 export const Slice = createSlice({
@@ -23,6 +25,7 @@ export const Slice = createSlice({
   initialState: initialModel,
   reducers: {
     setData(state, action) {
+      console.log('setData', action);
       let {payload} = action;
       for (let key in payload) {
         if (typeof state[key] === 'object') {
@@ -35,12 +38,16 @@ export const Slice = createSlice({
     },
     reset() {
       return {
-        userInfo: {},
+        userInfo: {
+          assets: [asset],
+        },
         isLogged: false,
         role: 1,
+        connectedAuthServer: false,
       };
     },
     updateUserInfo(state, action) {
+      console.log('updateUserInfo', action.payload);
       let {payload} = action;
       state.userInfo = {
         ...state.userInfo,

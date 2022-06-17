@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
 import {Box, Text, Flex, Image} from 'native-base';
@@ -14,11 +13,15 @@ import styles from '../../CreateDocument/styles';
 import moment from 'moment';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {TouchableOpacity} from 'react-native';
+import NotConnectServerForm from './NotConnectServerForm';
+import LoginSheet from '../../../components/LoginSheet';
 export default function Home(props) {
+  const [openLogin, setOpenLogin] = useState(false);
   const {user, documents} = useShallowEqualSelector(state => ({
     documents: state.documents.data,
     user: state.user,
   }));
+  const connectedAuthServer = user?.connectedAuthServer;
   const [countVerify, setCount] = useState([0, 0, 0]);
   useEffect(() => {
     let newCount = [0, 0, 0];
@@ -104,15 +107,22 @@ export default function Home(props) {
         })}
       </Flex>
       <Box p="4" flex={1}>
-        <ListDocument
-          documents={documents}
-          navigation={props.navigation}
-          title={Constants.isManager(user.role) ? 'New Request' : ''}
-          hideSort={true}
-          renderItem={Constants.isManager(user.role) ? renderDocumentItem : ''}
-          isManager={Constants.isManager(user.role)}
-        />
+        {connectedAuthServer ? (
+          <ListDocument
+            documents={documents}
+            navigation={props.navigation}
+            title={Constants.isManager(user.role) ? 'New Request' : ''}
+            hideSort={true}
+            renderItem={
+              Constants.isManager(user.role) ? renderDocumentItem : ''
+            }
+            isManager={Constants.isManager(user.role)}
+          />
+        ) : (
+          <NotConnectServerForm setOpenLogin={setOpenLogin} />
+        )}
       </Box>
+      <LoginSheet openLogin={openLogin} setOpenLogin={setOpenLogin} />
     </Box>
   );
 }

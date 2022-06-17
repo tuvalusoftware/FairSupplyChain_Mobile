@@ -9,12 +9,15 @@ export default function ConfirmSheet({
   icon,
   onClose,
   onOk,
+  cancelLabel,
+  okLabel,
+  cancelStyle = {},
+  okStyle = {},
 }) {
-  console.log('type', typeof description);
   const {colors} = useTheme();
   return (
     <Actionsheet isOpen={isOpen} onClose={onClose}>
-      <Actionsheet.Content>
+      <Actionsheet.Content px="22px">
         {icon ? (
           <Box {...styles.icon}>
             <MaterialCommunityIcons
@@ -40,11 +43,12 @@ export default function ConfirmSheet({
             w="40%"
             mw="200px"
             h="50px"
-            variant="outline">
-            Cancel
+            variant="outline"
+            {...cancelStyle}>
+            {cancelLabel || 'Cancel'}
           </Button>
-          <Button w="55%" mw="300px" h="50px" onPress={onOk}>
-            Confirm
+          <Button w="55%" mw="300px" h="50px" onPress={onOk} {...okStyle}>
+            {okLabel || 'Confirm'}
           </Button>
         </Flex>
       </Actionsheet.Content>

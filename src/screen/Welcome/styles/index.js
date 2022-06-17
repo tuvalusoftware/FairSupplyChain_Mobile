@@ -7,7 +7,7 @@ const styles = {
   buttonPhone: {
     p: 4,
     mb: 22,
-    colorScheme: 'secondary',
+    colorScheme: 'primary',
   },
   center: {
     mt: '30px',

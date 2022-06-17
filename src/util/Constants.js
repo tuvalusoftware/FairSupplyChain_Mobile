@@ -35,6 +35,9 @@ const Constants = {
     currency: 'currency',
     accounts: 'accounts',
     currentAccount: 'currentAccount',
+    onboardingViewed: 'onboardingViewed',
+    access_token: 'access_token',
+    connectedAuthServer: 'connectedAuthServer',
   },
   network: {
     mainnet: 1,
@@ -47,5 +50,7 @@ const Constants = {
   getStorage,
   setStorage,
   isManager: role => role === 3,
+  authServer: 'http://18.139.84.180:12000/api/auth/',
+  // authServer: 'http://192.168.1.10:15000/api/auth/',
 };
 export default Constants;

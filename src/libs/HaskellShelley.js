@@ -843,6 +843,15 @@ export class Ed25519KeyHash extends Ptr {
     );
     return Ptr._wrap(ret, Ed25519KeyHash);
   }
+
+  // /**
+  //  * @param {string} prefix
+  //  * @returns {string}
+  //  */
+  // async to_bech32(prefix) {
+  //   if (prefix == null) return HaskellShelley.addressToBech32(this.ptr);
+  //   return HaskellShelley.addressToBech32WithPrefix(this.ptr, prefix);
+  // }
 }
 
 export class ScriptHash extends Ptr {

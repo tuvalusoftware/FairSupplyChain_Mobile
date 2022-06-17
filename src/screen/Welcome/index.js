@@ -7,53 +7,75 @@ import LoginPrivateKey from './LoginPrivatekey';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
 import {TouchableOpacity, ScrollView, KeyboardAvoidingView} from 'react-native';
-import LoginWallet from './LoginWallet';
-import {createWallet} from '../../util/script';
+import {createWallet, getCurrentAccount} from '../../util/script';
 import bip39 from 'react-native-bip39';
 // import * as HaskellShelley from '../../libs/HaskellShelley';
 // import * as CardanoMessageSigning from '../../libs/CardanoMessageSigning';
+import {useDispatch} from 'react-redux';
 import Constants, {getStorage} from '../../util/Constants';
+import AuthForm from './AuthForm';
+import {userSliceActions} from '../../redux/reducer/user';
 const STORAGE = Constants.STORAGE;
 
-export default function Index(props) {
+export default function Welcome(props) {
   let navigation = props.navigation;
+  const dispatch = useDispatch();
   const [status, setStatus] = useState('');
   const [mnemonic, setMnemonic] = useState(
     'crystal silk squeeze arrive inject list satoshi focus near garlic stool need lock tray canoe embody rescue scrub clump cycle few riot shiver tobacco',
   );
-  let name = 'nntruong',
-    password = '123456';
+  // let name = 'nntruong',
+  //   password = '123456';
   const onBack = () => setStatus('');
-  const user = useShallowEqualSelector(state => {
-    return state.user;
-  });
-  console.log(status);
-  useEffect(() => {
-    if (user.isLogged) {
-      navigation.navigate('Main');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user.isLogged]);
-  const account = async () => {
+  const account = async (name, password) => {
     const checkStore = await getStorage(STORAGE.encryptedKey);
-    // const accounts = await getStorage(STORAGE.network);
     console.log('checkStore', checkStore);
-
-    let _mnemonic;
+    let _mnemonic = mnemonic;
     try {
-      if (!checkStore) {
+      if (!_mnemonic) {
         _mnemonic = await bip39.generateMnemonic(256);
-        setMnemonic(_mnemonic);
-        await createWallet(name, _mnemonic, password);
       }
-      // console.log('checkStore', checkStore);
-      // const index = await createAccount(name, password);
-      // console.log('createAccount', index);
+      console.log('_mnemonic', _mnemonic);
+      let success = await createWallet(name, _mnemonic, password);
+      if (success) {
+        navigation.navigate('Main', {mnemonic: _mnemonic});
+        try {
+          let _account = await getCurrentAccount();
+          if (_account) {
+            console.log('account', _account);
+            dispatch(
+              userSliceActions.setData({
+                userInfo: _account,
+                isLogged: true,
+              }),
+            );
+            setStatus('');
+          }
+        } catch (err) {
+          console.log('App Error', err);
+        }
+      }
     } catch (e) {
       console.log('account', e);
     }
   };
-
+  const initMnemonic = async () => {
+    let _mnemonic = await bip39.generateMnemonic(256);
+    console.log('initMnemonic', _mnemonic);
+    setMnemonic(_mnemonic);
+    setStatus('authForm');
+  };
+  const importSeed = seed => {
+    console.log('importSeed', seed);
+    setMnemonic(seed);
+    setTimeout(() => {
+      setStatus('authForm');
+    }, 500);
+  };
+  const _createWallet = (userName, password) => {
+    console.log('_createWallet');
+    account(userName, password);
+  };
   return (
     <Box p="4" h="full" bg="white">
       <Box h="30px">
@@ -75,7 +97,8 @@ export default function Index(props) {
       <KeyboardAvoidingView
         behavior="padding"
         enabled
-        keyboardVerticalOffset={-100}>
+        keyboardVerticalOffset={-100}
+        keyboardShouldPersistTaps="always">
         <ScrollView h="full">
           <Center flex={1} minH="300px">
             <Image source={logo} alt="logo" w="170" h="170px" />
@@ -88,29 +111,30 @@ export default function Index(props) {
           </Center>
 
           <Box pb="50">
-            {status === 'privateKey' ? <LoginPrivateKey onBack={onBack} /> : ''}
-            {status === 'wallet' ? <LoginWallet /> : ''}
+            {status === 'privateKey' ? (
+              <LoginPrivateKey onBack={onBack} login={importSeed} />
+            ) : (
+              ''
+            )}
+            {status === 'authForm' ? (
+              <AuthForm createWallet={_createWallet} />
+            ) : (
+              ''
+            )}
             {!status ? (
               <>
                 <Button
-                  {...styles.buttonEmail}
-                  onPress={() => {
-                    setStatus('wallet');
-                  }}>
-                  Connect with Wallet
-                </Button>
-                <Button
                   {...styles.buttonPhone}
-                  onPress={() => setStatus('privateKey')}>
-                  Login with Private key
+                  onPress={() => {
+                    initMnemonic();
+                  }}>
+                  Create new wallet
                 </Button>
                 <Button
                   {...styles.buttonPhone}
                   variant="outline"
-                  onPress={() => {
-                    account();
-                  }}>
-                  Sign up as New User
+                  onPress={() => setStatus('privateKey')}>
+                  Import wallet
                 </Button>
               </>
             ) : (

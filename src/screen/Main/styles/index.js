@@ -40,5 +40,14 @@ const styles = {
     elevation: -1,
     bottom: '18px',
   },
+  icon: {
+    w: '48px',
+    h: '48px',
+    borderRadius: '24px',
+    bg: '#2190DE34',
+    justifyContent: 'center',
+    alignItems: 'center',
+    mb: '12px',
+  },
 };
 export default styles;

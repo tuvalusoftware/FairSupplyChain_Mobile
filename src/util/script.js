@@ -10,7 +10,8 @@ import Constants, {getStorage, NODE, setStorage, NETWORK_ID} from './Constants';
 import crypto from 'crypto';
 import provider from '../util/provider';
 import {mnemonicToEntropy} from 'react-native-bip39';
-
+import * as CardanoMessageSigning from '../libs/CardanoMessageSigning';
+import axios from 'axios';
 const STORAGE = Constants.STORAGE;
 function cryptoRandomString({length}) {
   return crypto.randomBytes(length).toString('hex');
@@ -105,7 +106,6 @@ export const createWallet = async (name, seedPhrase, password) => {
     //   searchIndex++;
     // }
     await switchAccount(index);
-    console.log('white end');
     return true;
     // password = null;
   } catch (err) {
@@ -215,6 +215,7 @@ export const createAccount = async (name, password, accountIndex = 0) => {
 };
 
 export const requestAccountKey = async (password, accountIndex) => {
+  // console.log('password, accountIndex', password, accountIndex);
   const encryptedRootKey = await getStorage(STORAGE.encryptedKey);
   let accountKey = {};
   try {
@@ -252,7 +253,7 @@ export const decryptWithPassword = async (password, encryptedKeyHex) => {
   } catch (err) {
     console.log('decryptWithPassword error', err);
   }
-  console.log('decryptedHex', decryptedHex);
+  // console.log('decryptedHex', decryptedHex);
   return decryptedHex;
 };
 
@@ -263,9 +264,9 @@ const harden = num => {
 export async function blockfrostRequest(endpoint, headers, body, signal) {
   const network = await getNetwork();
   let result;
-  console.log('blockfrostRequest 1', network);
+  // console.log('blockfrostRequest 1', network);
   while (!result || result.status_code === 500) {
-    console.log('blockfrostRequest 2', result);
+    // console.log('blockfrostRequest 2', result);
     if (result) {
       await delay(100);
     }
@@ -288,15 +289,19 @@ export async function blockfrostRequest(endpoint, headers, body, signal) {
 
 export const getNetwork = async () => {
   let network = await getStorage(STORAGE.network);
+  // console.log('getNetwork', network);
   if (network) {
-    network = JSON.parse(network);
+    return JSON.parse(network);
   }
-  return network;
+  return {
+    id: NETWORK_ID.mainnet,
+    node: NODE.mainnet,
+  };
 };
 
 export const getAddress = async () => {
   const currentAccount = await getCurrentAccount();
-  console.log('currentAccount', currentAccount);
+  // console.log('currentAccount', currentAccount);
   let f_p = await HaskellShelley.Address.from_bech32(
     currentAccount.paymentAddr,
   );
@@ -309,6 +314,9 @@ export const getCurrentAccount = async () => {
   const currentAccountIndex = await getCurrentAccountIndex();
   const accounts = await getAccounts();
   const network = await getNetwork();
+  if (!accounts) {
+    return null;
+  }
   //   console.log('accounts', network);
   return accountToNetworkSpecific(accounts[currentAccountIndex], network);
 };
@@ -318,7 +326,10 @@ export const getCurrentAccountIndex = async () =>
 
 export const getAccounts = async () => {
   let a = await getStorage(STORAGE.accounts);
-  return JSON.parse(a);
+  if (a) {
+    return JSON.parse(a);
+  }
+  return null;
 };
 
 export const setNetwork = async network => {
@@ -370,6 +381,9 @@ export const asset = {
 
 export const getBalance = async () => {
   const currentAccount = await getCurrentAccount();
+  if (!currentAccount) {
+    return {...asset};
+  }
   console.log('getBalance', currentAccount.paymentAddr);
   const result = await blockfrostRequest(
     `/addresses/${currentAccount.paymentAddr}`,
@@ -440,4 +454,152 @@ export const formatBigNumWithDecimals = async (num, decimals) => {
     '.' +
     fractionalUnits.toString().padStart(decimals, '')
   );
+};
+
+export const loginAuthServer = async (params, access_token) => {
+  let result;
+  console.log('prams', params);
+  try {
+    const rawResult = await axios.post(Constants.authServer + 'login', params, {
+      withCredentials: true,
+      header: {
+        'Content-Type': 'application/json',
+        Cookie: `access_token=${access_token}`,
+      },
+    });
+    result = rawResult;
+  } catch (err) {
+    console.log(err);
+  }
+  return result;
+};
+//need to update lib
+export const getRandomNumber = async () => {
+  let result;
+  try {
+    const rawResult = await fetch(Constants.authServer + 'getRandomNumber', {
+      method: 'GET',
+    });
+    result = await rawResult.json();
+  } catch (err) {
+    console.log('getRandomNumber error', err);
+  }
+  return result;
+};
+//need to update lib
+export const verifyAccessToken = async access_token => {
+  console.log('access_token', access_token);
+  let result;
+  try {
+    const rawResult = await fetch(Constants.authServer + 'getRandomNumber', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: `access_token=${access_token}`,
+      },
+    });
+    result = await rawResult.json();
+  } catch (err) {
+    console.log('verifyAccessToken error', err.request._headers);
+    throw new Error(err.message);
+  }
+  return result;
+};
+
+export const signData = async (address, payload, password, accountIndex) => {
+  let {paymentKey, stakeKey} = await requestAccountKey(password, accountIndex);
+  let typeAddress = await getTypeAddress(address);
+  const accountKey = typeAddress === 'payment' ? paymentKey : stakeKey;
+  const publicKey = await accountKey.to_public();
+
+  const protectedHeaders = await CardanoMessageSigning.HeaderMap.new();
+  await protectedHeaders.set_algorithm_id(
+    await CardanoMessageSigning.Label.from_algorithm_id(
+      await CardanoMessageSigning.AlgorithmId.EdDSA,
+    ),
+  );
+  await protectedHeaders.set_key_id(await publicKey.as_bytes());
+  await protectedHeaders.set_header(
+    await CardanoMessageSigning.Label.new_text('address'),
+    await CardanoMessageSigning.CBORValue.new_bytes(
+      Buffer.from(address, 'hex'),
+    ),
+  );
+  const protectedSerialized =
+    await CardanoMessageSigning.ProtectedHeaderMap.new(protectedHeaders);
+  const unprotectedHeaders = await CardanoMessageSigning.HeaderMap.new();
+  const headers = await CardanoMessageSigning.Headers.new(
+    protectedSerialized,
+    unprotectedHeaders,
+  );
+  const builder = await CardanoMessageSigning.COSESign1Builder.new(
+    headers,
+    Buffer.from(payload, 'hex'),
+    false,
+  );
+  const toSign = await (await builder.make_data_to_sign()).to_bytes();
+  const signedSigStruc = await (await accountKey.sign(toSign)).to_bytes();
+  const coseSign1 = await builder.build(signedSigStruc);
+
+  stakeKey.free();
+  stakeKey = null;
+  paymentKey.free();
+  paymentKey = null;
+
+  return Buffer.from(await coseSign1.to_bytes(), 'hex').toString('hex');
+};
+
+export const getTypeAddress = async address => {
+  const baseAddr = await HaskellShelley.BaseAddress.from_address(
+    await HaskellShelley.Address.from_bytes(Buffer.from(address, 'hex')),
+  );
+  const rewardAddr = await HaskellShelley.RewardAddress.from_address(
+    await HaskellShelley.Address.from_bytes(Buffer.from(address, 'hex')),
+  );
+  if (baseAddr) {
+    return 'payment';
+  }
+  if (rewardAddr) {
+    return 'reward';
+  }
+  return null;
+};
+
+export const extractKeyHash = async address => {
+  //TODO: implement for various address types
+  if (!(await isValidAddressBytes(Buffer.from(address, 'hex')))) {
+    throw 'DataSignError.InvalidFormat';
+  }
+};
+
+const isValidAddressBytes = async address => {
+  const network = await getNetwork();
+  try {
+    const addr = await HaskellShelley.Address.from_bytes(address);
+    let net_id = await addr.network_id();
+    if (
+      (net_id === 1 && network.id === NETWORK_ID.mainnet) ||
+      (net_id === 0 && network.id === NETWORK_ID.testnet)
+    ) {
+      return true;
+    }
+    return false;
+  } catch (e) {
+    console.log('isValidAddressBytes 1', e);
+  }
+  try {
+    const addr = await HaskellShelley.ByronAddress.from_bytes(address);
+    let net_id = await addr.network_id();
+    console.log('net_id', net_id);
+    if (
+      (net_id === 1 && network.id === NETWORK_ID.mainnet) ||
+      (net_id === 0 && network.id === NETWORK_ID.testnet)
+    ) {
+      return true;
+    }
+    return false;
+  } catch (e) {
+    console.log('isValidAddressBytes 2', e);
+  }
+  return false;
 };
