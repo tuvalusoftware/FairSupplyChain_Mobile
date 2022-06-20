@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Box, Flex, Text, Switch, useTheme} from 'native-base';
+import {Box, Flex, Stack, Text, Radio, Switch, useTheme} from 'native-base';
 import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
 import {TouchableOpacity} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -85,7 +85,7 @@ const ButtonEdit = props => {
 export default function Index(props) {
   const user = useShallowEqualSelector(state => state.user);
   const _network = useShallowEqualSelector(state => state.user.network);
-  const [status, setStatus] = useState(false);
+  const [status, setStatus] = useState(NETWORK_ID.mainnet);
   const {colors} = useTheme();
   // const [price, setPrice] = useState(1);
   const [openEdit, setOpenEdit] = useState(false);
@@ -94,10 +94,7 @@ export default function Index(props) {
   let navigation = props.navigation;
   const _setStatus = async () => {
     let network = await getNetwork();
-    if (network.id === NETWORK_ID.mainnet) {
-      return setStatus(false);
-    }
-    setStatus(true);
+    setStatus(network.id);
   };
   useEffect(() => {
     _setStatus();
@@ -126,8 +123,8 @@ export default function Index(props) {
     );
     interval = setTimeout(() => fetchBalance(network), 60000);
   };
-  const onChangeNetwork = _status => {
-    if (!_status) {
+  const onChangeNetwork = network => {
+    if (network === NETWORK_ID.mainnet) {
       dispatch(
         userSliceActions.setData({
           network: NETWORK_ID.mainnet,
@@ -188,7 +185,7 @@ export default function Index(props) {
   ];
   return (
     <Box>
-      <Flex bg="white" mb="12px" p="12px" mt="12px">
+      <Flex bg="white" mb="12px" p="18px" mt="12px">
         <Text bold mb="12px" fontSize={16}>
           Wallet Info
         </Text>
@@ -197,20 +194,28 @@ export default function Index(props) {
         ))}
       </Flex>
 
-      <Flex bg="white" mb="12px" p="12px" mt="12px">
+      <Flex bg="white" mb="12px" p="18px" mt="12px">
         <Text bold mb="12px">
           Network
         </Text>
-        <Flex direction="row">
-          <Text mr="8px">Mainnet</Text>
-          <Switch
-            size="md"
-            onValueChange={onChangeNetwork}
-            // disabled //disabled switch
-            value={status}
-          />
-          <Text ml="8px">Testnet</Text>
-        </Flex>
+        <Radio.Group onChange={onChangeNetwork} value={status}>
+          <Stack
+            mt="12px"
+            direction={{
+              base: 'row',
+              md: 'row',
+            }}
+            alignItems={{
+              base: 'flex-start',
+              md: 'center',
+            }}
+            space={12}
+            w="75%"
+            maxW="300px">
+            <Radio value={NETWORK_ID.testnet}>Testnet</Radio>
+            <Radio value={NETWORK_ID.mainnet}>Mainnet</Radio>
+          </Stack>
+        </Radio.Group>
       </Flex>
 
       <TouchableOpacity onPress={_logout}>
@@ -227,7 +232,7 @@ export default function Index(props) {
             color={colors.primary[500]}
           />
           <Text ml="4px" color="primary.500">
-            Disconnect Wallet
+            Disconnect
           </Text>
         </Box>
       </TouchableOpacity>

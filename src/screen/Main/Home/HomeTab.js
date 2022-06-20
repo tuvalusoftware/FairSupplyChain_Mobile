@@ -96,7 +96,7 @@ export default function Home(props) {
         direction="row"
         bg="white"
         justifyContent="space-between"
-        p="6px"
+        // p="6px"
         px="16px">
         <AccountButton />
         {Constants.isManager(user.role) ? '' : <NotificationButton />}
@@ -106,7 +106,7 @@ export default function Home(props) {
           return <VerifiedDocs key={index} {...item} />;
         })}
       </Flex>
-      <Box p="4" flex={1}>
+      <Box px="4" flex={1}>
         {connectedAuthServer ? (
           <ListDocument
             documents={documents}

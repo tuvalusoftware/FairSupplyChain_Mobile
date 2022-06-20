@@ -6,6 +6,7 @@ import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelec
 export default function AccountButton() {
   let {colors} = useTheme();
   const user = useShallowEqualSelector(state => state.user);
+  const connected = user.connectedAuthServer;
   return (
     <Flex h="full" direction="row" justifyContent="center" alignItems="center">
       <Avatar
@@ -23,7 +24,7 @@ export default function AccountButton() {
       <MaterialCommunityIcons
         name="check-decagram"
         size={30}
-        color={colors.green[400]}
+        color={connected ? colors.green[400] : colors.gray[400]}
       />
     </Flex>
   );

@@ -29,7 +29,8 @@ import useShallowEqualSelector from './src/redux/customHook/useShallowEqualSelec
 import {NETWORK_ID, NODE} from './src/util/Constants';
 import SplashScreen from 'react-native-splash-screen';
 LogBox.ignoreLogs(['NativeBase:']);
-
+LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+LogBox.ignoreAllLogs(); //Ignore all log notifications
 // const _contentContainerStyle = {flexGrow: 1};
 
 const Stack = createNativeStackNavigator();

@@ -9,8 +9,6 @@ const initialModel = {
   userInfo: {
     id: 'User0123456789',
     privateKey: '0xF91807FDA532027fE32AbDCc56926cB286A28FD4',
-    avatar:
-      'https://www.google.com/url?sa=i&url=https%3A%2F%2Fvi.fanpop.com%2Fclubs%2Frandom%2Fpicks%2Fshow%2F457119%2Favatar-aang-naruto-uzumaki-who-would-win-fight&psig=AOvVaw1_9IFfMIyW14aq3xWLwRDe&ust=1654574494460000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCJD4mLz4l_gCFQAAAAAdAAAAABAD',
     assets: [asset],
   },
   isLogged: false,

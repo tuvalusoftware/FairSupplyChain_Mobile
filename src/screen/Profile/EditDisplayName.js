@@ -1,9 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright (c) 2022 - KuKuLu Vietnam Limited
  *
  * @author  NNTruong / nhuttruong6496@gmail.com
  */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button, Modal, Flex, Input, Text} from 'native-base';
 import {useDispatch} from 'react-redux';
 import {userSliceActions} from '../../redux/reducer/user';
@@ -24,7 +25,11 @@ export default function Index({isOpen, onClose, displayName = ''}) {
     onClose();
   };
   const [value, setName] = useState(displayName);
-
+  useEffect(() => {
+    if (displayName !== value) {
+      setName(displayName);
+    }
+  }, [isOpen]);
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <Modal.Content>

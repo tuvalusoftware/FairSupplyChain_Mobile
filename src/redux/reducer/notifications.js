@@ -16,6 +16,11 @@ export const Slice = createSlice({
     example(state, action) {
       return state;
     },
+    reset() {
+      return {
+        data: [],
+      };
+    },
   },
 });
 

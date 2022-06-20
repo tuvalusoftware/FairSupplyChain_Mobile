@@ -10,6 +10,9 @@ export const NETWORK_ID = {
 };
 export const getStorage = key => AsyncStorage.getItem(key);
 export const setStorage = (key, value) => AsyncStorage.setItem(key, value);
+export const clearStorage = async () => {
+  await AsyncStorage.clear();
+};
 const Constants = {
   STATUS: ['Verified', 'Verifying', 'Rejected'],
   LIST_TYPE_DOCUMENT: [
