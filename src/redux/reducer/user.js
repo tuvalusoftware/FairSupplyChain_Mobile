@@ -23,7 +23,7 @@ export const Slice = createSlice({
   initialState: initialModel,
   reducers: {
     setData(state, action) {
-      console.log('setData', action);
+      // console.log('setData', action);
       let {payload} = action;
       for (let key in payload) {
         if (typeof state[key] === 'object') {

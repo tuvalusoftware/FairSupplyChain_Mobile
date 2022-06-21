@@ -14,11 +14,12 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import routes from './src/routes';
-import {PermissionsAndroid} from 'react-native';
+// import {PermissionsAndroid} from 'react-native';
 import {LogBox} from 'react-native';
 import {Provider, useDispatch} from 'react-redux';
 import rootReducer from './src/redux/store';
 import {userSliceActions} from './src/redux/reducer/user';
+import Onboarding from './src/screen/Onboarding';
 import {
   getCurrentAccount,
   getNetwork,
@@ -26,7 +27,13 @@ import {
   getBalance,
 } from './src/util/script';
 import useShallowEqualSelector from './src/redux/customHook/useShallowEqualSelector';
-import {NETWORK_ID, NODE} from './src/util/Constants';
+import Constants, {
+  getStorage,
+  NETWORK_ID,
+  NODE,
+  setStorage,
+} from './src/util/Constants';
+// import splashScreen from './src/images/splashScreen.png';
 import SplashScreen from 'react-native-splash-screen';
 LogBox.ignoreLogs(['NativeBase:']);
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
@@ -41,10 +48,10 @@ const App = () => {
     isLogged: state.user.isLogged,
   }));
   const [isLoading, setIsLoading] = useState(true);
-  console.log('App network', network);
+  const [onboardingViewed, setOnboarding] = useState(false);
   const initNetwork = async () => {
     let _network = await getNetwork();
-    console.log('initNetwork', _network);
+    // console.log('initNetwork', _network);
     if (_network.id === NETWORK_ID.mainnet) {
       dispatch(
         userSliceActions.setData({
@@ -72,7 +79,6 @@ const App = () => {
     try {
       let account = await getCurrentAccount();
       if (account) {
-        console.log('account', account);
         dispatch(
           userSliceActions.setData({
             userInfo: account,
@@ -80,37 +86,42 @@ const App = () => {
           }),
         );
       }
+      let _onboardingViewed = await getStorage(
+        Constants.STORAGE.onboardingViewed,
+      );
+      _onboardingViewed = _onboardingViewed || false;
+      setOnboarding(_onboardingViewed);
     } catch (err) {
       console.log('App Error', err);
     }
     setIsLoading(false);
     if (isLoading) {
-      setTimeout(() => SplashScreen.hide(), 500);
+      setTimeout(() => SplashScreen.hide(), 1000);
     }
   };
-  const requestCameraPermission = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        {
-          title: 'Cool Photo App Camera Permission',
-          message:
-            'Cool Photo App needs access to your camera ' +
-            'so you can take awesome pictures.',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('You can use the camera');
-      } else {
-        console.log('Camera permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
+  // const requestCameraPermission = async () => {
+  //   try {
+  //     const granted = await PermissionsAndroid.request(
+  //       PermissionsAndroid.PERMISSIONS.CAMERA,
+  //       {
+  //         title: 'Cool Photo App Camera Permission',
+  //         message:
+  //           'Cool Photo App needs access to your camera ' +
+  //           'so you can take awesome pictures.',
+  //         buttonNeutral: 'Ask Me Later',
+  //         buttonNegative: 'Cancel',
+  //         buttonPositive: 'OK',
+  //       },
+  //     );
+  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //       console.log('You can use the camera');
+  //     } else {
+  //       console.log('Camera permission denied');
+  //     }
+  //   } catch (err) {
+  //     console.warn(err);
+  //   }
+  // };
   const _getBalanceFirstTime = async () => {
     console.log('_getBalanceFirstTime');
     const asset = await getBalance();
@@ -119,42 +130,52 @@ const App = () => {
         userInfo: {assets: [asset]},
       }),
     );
-    console.log('asset', asset);
   };
   useEffect(() => {
+    // setIsLoading(true);
     initUser();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [network]);
   useEffect(() => {
-    requestCameraPermission();
+    // requestCameraPermission();
+    // SplashScreen.show();
     initNetwork();
     _getBalanceFirstTime();
     // SplashScreen.hide();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const isDarkMode = useColorScheme() === 'dark';
-  console.log('isLogged', isLogged);
+  // console.log('isLogged', isLogged);
+  console.log('onboardingViewed', onboardingViewed);
   if (isLoading) {
+    //show skeleton
     return null;
   }
+  console.log('SplashScreen hide');
+  // SplashScreen.hide();
   return (
     <NavigationContainer>
       <NativeBaseProvider>
         <SafeAreaView style={{height: '100%'}}>
-          {/* <ScrollView
-              contentInsetAdjustmentBehavior="automatic"
-              bg="white"
-              h="full"
-              _contentContainerStyle={_contentContainerStyle}> */}
-          {/* <Header /> */}
+          {/* <Box w="full" h="full">
+            <Image source={splashScreen} alt="splashScreen" w="full" />
+          </Box> */}
+
           <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-          <Stack.Navigator initialRouteName={isLogged ? 'Main' : 'Welcome'}>
-            {routes.map((item, index) => {
-              return <Stack.Screen {...item} key={index} />;
-            })}
-          </Stack.Navigator>
-          {/* </ScrollView> */}
+          {!onboardingViewed ? (
+            <Onboarding
+              start={async () => {
+                await setStorage(Constants.STORAGE.onboardingViewed, 'true');
+                setOnboarding(true);
+              }}
+            />
+          ) : (
+            <Stack.Navigator initialRouteName={isLogged ? 'Main' : 'Welcome'}>
+              {routes.map((item, index) => {
+                return <Stack.Screen {...item} key={index} />;
+              })}
+            </Stack.Navigator>
+          )}
         </SafeAreaView>
       </NativeBaseProvider>
     </NavigationContainer>

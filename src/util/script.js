@@ -317,7 +317,6 @@ export const getCurrentAccount = async () => {
   if (!accounts) {
     return null;
   }
-  //   console.log('accounts', network);
   return accountToNetworkSpecific(accounts[currentAccountIndex], network);
 };
 
@@ -399,6 +398,7 @@ export const getBalance = async () => {
   let coin = await value.coin();
   coin = await coin.to_str();
   let amount = await formatBigNumWithDecimals(coin, 6);
+  console.log('amount', amount);
   return {
     ...asset,
     amount,
@@ -447,7 +447,7 @@ export const formatBigNumWithDecimals = async (num, decimals) => {
     '1' + '0'.repeat(decimals),
   );
   singleUnit = await singleUnit.to_str();
-  const wholeUnits = num / singleUnit;
+  const wholeUnits = Math.floor(num / singleUnit);
   const fractionalUnits = num % singleUnit;
   return (
     wholeUnits.toString() +

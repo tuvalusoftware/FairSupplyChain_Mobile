@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Box, Flex, Stack, Text, Radio, Switch, useTheme} from 'native-base';
+import {Box, Flex, Stack, Text, Radio, useTheme} from 'native-base';
 import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
 import {TouchableOpacity} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -32,7 +32,7 @@ const Row = ({data}) => {
       <Box flex={1} mx="12px">
         <Text color="#000000A5">{data.title}</Text>
         {data.value.map((item, index) => (
-          <Text bold key={index + item}>
+          <Text bold mt="4px" key={index + item}>
             {item}
           </Text>
         ))}
@@ -82,6 +82,7 @@ const ButtonEdit = props => {
     />
   );
 };
+
 export default function Index(props) {
   const user = useShallowEqualSelector(state => state.user);
   const _network = useShallowEqualSelector(state => state.user.network);
@@ -90,7 +91,8 @@ export default function Index(props) {
   // const [price, setPrice] = useState(1);
   const [openEdit, setOpenEdit] = useState(false);
   const dispatch = useDispatch();
-  let interval = '';
+  // let interval = '';
+  const [interval, setInterval] = useState('');
   let navigation = props.navigation;
   const _setStatus = async () => {
     let network = await getNetwork();
@@ -109,6 +111,7 @@ export default function Index(props) {
     }
     if (interval) {
       clearInterval(interval);
+      setInterval(null);
     }
     // const _price = await fetchPrice();
     // setPrice(_price);
@@ -121,7 +124,8 @@ export default function Index(props) {
         userInfo: {assets: [asset]},
       }),
     );
-    interval = setTimeout(() => fetchBalance(network), 60000);
+    let _interval = setTimeout(() => fetchBalance(network), 60000);
+    setInterval(_interval);
   };
   const onChangeNetwork = network => {
     if (network === NETWORK_ID.mainnet) {

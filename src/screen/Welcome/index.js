@@ -42,7 +42,6 @@ export default function Welcome(props) {
         try {
           let _account = await getCurrentAccount();
           if (_account) {
-            console.log('account', _account);
             dispatch(
               userSliceActions.setData({
                 userInfo: _account,
@@ -52,11 +51,11 @@ export default function Welcome(props) {
             setStatus('');
           }
         } catch (err) {
-          console.log('App Error', err);
+          console.log('account Error', err);
         }
       }
     } catch (e) {
-      console.log('account', e);
+      console.log('account error', e);
     }
   };
   const initMnemonic = async () => {
