@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
-import {Box} from 'native-base';
+import {Box, useTheme} from 'native-base';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import HomeTab from './Home/HomeTab';
@@ -29,11 +29,12 @@ export default function Main(props) {
   const {user} = useShallowEqualSelector(state => ({
     user: state.user,
   }));
+  const {colors} = useTheme();
   const dispatch = useDispatch();
   useEffect(() => {
     console.log('useEffect');
     initData();
-  }, []);
+  }, [props.route?.params?.mnemonic]);
   const initData = async () => {
     setInitData(true);
     let _mnemonic = props.route?.params?.mnemonic;
@@ -94,7 +95,7 @@ export default function Main(props) {
       <Tab.Navigator
         initialRouteName="Home"
         screenOptions={{
-          tabBarStyle: {height: 60},
+          tabBarStyle: {height: 66, paddingBottom: 6},
         }}>
         <Tab.Screen
           name="Home"
@@ -102,13 +103,15 @@ export default function Main(props) {
           options={{
             headerShown: false,
             tabBarLabel: 'Home',
-            tabBarIcon: ({color, size}) => (
-              <MaterialCommunityIcons
-                name="home-outline"
-                size={30}
-                color={color}
-              />
-            ),
+            tabBarIcon: ({color, size, focused}) => {
+              return (
+                <MaterialCommunityIcons
+                  name="home-outline"
+                  size={30}
+                  color={focused ? colors.primary[500] : color}
+                />
+              );
+            },
           }}
         />
         {Constants.isManager(user.role) ? (
@@ -119,11 +122,11 @@ export default function Main(props) {
               headerShown: true,
               tabBarLabel: 'Docs',
               title: 'All Requests',
-              tabBarIcon: ({color, size}) => (
+              tabBarIcon: ({color, focused}) => (
                 <MaterialCommunityIcons
                   name="file-outline"
                   size={30}
-                  color={color}
+                  color={focused ? colors.primary[500] : color}
                 />
               ),
             }}
@@ -167,11 +170,11 @@ export default function Main(props) {
           options={{
             headerShown: true,
             tabBarLabel: 'Profile',
-            tabBarIcon: ({color, size}) => (
+            tabBarIcon: ({color, focused}) => (
               <MaterialCommunityIcons
                 name="account-circle-outline"
                 size={30}
-                color={color}
+                color={focused ? colors.primary[500] : color}
               />
             ),
           }}

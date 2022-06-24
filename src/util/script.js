@@ -374,7 +374,7 @@ export const fetchPrice = async currency => {
 export const asset = {
   decimals: 6,
   name: 'ADA',
-  unitName: 'ADA',
+  unitName: '₳',
   amount: '0',
 };
 
@@ -488,7 +488,7 @@ export const getRandomNumber = async () => {
 };
 //need to update lib
 export const verifyAccessToken = async access_token => {
-  console.log('access_token', access_token);
+  // console.log('access_token', access_token);
   let result;
   try {
     const rawResult = await fetch(Constants.authServer + 'getRandomNumber', {

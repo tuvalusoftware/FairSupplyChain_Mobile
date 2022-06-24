@@ -73,15 +73,22 @@ export default function LoginSheet({openLogin, setOpenLogin}) {
     } catch (err) {
       setError('Incorrect password');
       console.log('login error', err);
+      setIsRequesting(false);
+      return;
     }
     setIsRequesting(false);
+    setOpenLogin(false);
+  };
+  const onClose = () => {
+    setError('');
+    setPassword('');
     setOpenLogin(false);
   };
   return (
     <ConfirmSheet
       isOpen={openLogin}
       onOk={login}
-      onClose={setOpenLogin}
+      onClose={onClose}
       title="Connect your Wallet"
       icon="arrange-send-to-back"
       cancelStyle={{
@@ -104,6 +111,7 @@ export default function LoginSheet({openLogin, setOpenLogin}) {
             <Text bold mt="12px" mb="12px">
               Password
             </Text>
+
             <FormControl w="full" isInvalid={Boolean(error)}>
               <Input
                 onChangeText={onPasswordChange}

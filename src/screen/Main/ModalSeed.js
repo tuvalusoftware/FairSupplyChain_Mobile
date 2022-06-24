@@ -28,7 +28,7 @@ export default function Index(props) {
               h="44px"
               w="44px"
               borderRadius="22px"
-              bg="#2190DE34"
+              bg={colors.primary[200]}
               justifyContent="center"
               alignItems="center"
               mr="12px">

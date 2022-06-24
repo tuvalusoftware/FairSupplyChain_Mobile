@@ -3,7 +3,7 @@ const styles = {
     w: '48px',
     h: '48px',
     borderRadius: '24px',
-    bg: '#2190DE34',
+    bg: 'primary.200',
     justifyContent: 'center',
     alignItems: 'center',
     mb: '12px',

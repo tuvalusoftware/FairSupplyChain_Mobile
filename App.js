@@ -35,6 +35,7 @@ import Constants, {
 } from './src/util/Constants';
 // import splashScreen from './src/images/splashScreen.png';
 import SplashScreen from 'react-native-splash-screen';
+import CreateTheme from './src/util/CreateTheme';
 LogBox.ignoreLogs(['NativeBase:']);
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -155,7 +156,7 @@ const App = () => {
   // SplashScreen.hide();
   return (
     <NavigationContainer>
-      <NativeBaseProvider>
+      <NativeBaseProvider theme={CreateTheme}>
         <SafeAreaView style={{height: '100%'}}>
           {/* <Box w="full" h="full">
             <Image source={splashScreen} alt="splashScreen" w="full" />

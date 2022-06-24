@@ -47,7 +47,13 @@ export default function ConfirmSheet({
             {...cancelStyle}>
             {cancelLabel || 'Cancel'}
           </Button>
-          <Button w="55%" mw="300px" h="50px" onPress={onOk} {...okStyle}>
+          <Button
+            w="55%"
+            mw="300px"
+            h="50px"
+            colorScheme="primary"
+            onPress={onOk}
+            {...okStyle}>
             {okLabel || 'Confirm'}
           </Button>
         </Flex>

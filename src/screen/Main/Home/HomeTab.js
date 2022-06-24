@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
-import {Box, Text, Flex, Image} from 'native-base';
+import {Box, Text, Flex, Image, useTheme} from 'native-base';
 import VerifiedDocs from './VerifiedDocs';
 import ListDocument from '../../../components/ListDocument';
 import verified from '../../../images/logo.png';
@@ -23,6 +23,7 @@ export default function Home(props) {
   }));
   const connectedAuthServer = user?.connectedAuthServer;
   const [countVerify, setCount] = useState([0, 0, 0]);
+  const {colors} = useTheme();
   useEffect(() => {
     let newCount = [0, 0, 0];
     documents.forEach(element => {
@@ -66,6 +67,8 @@ export default function Home(props) {
   const renderDocumentItem = (document, index) => {
     console.log(document);
     const {title, image, id, createAt} = document;
+
+    const primary = colors.primary[500];
     return (
       <TouchableOpacity
         key={index}
@@ -84,7 +87,7 @@ export default function Home(props) {
           <MaterialCommunityIcons
             name="open-in-new"
             size={20}
-            color={'#2190DE'}
+            color={primary}
           />
         </Flex>
       </TouchableOpacity>
