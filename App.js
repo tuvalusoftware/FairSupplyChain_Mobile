@@ -1,11 +1,4 @@
 /* eslint-disable react-native/no-inline-styles */
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
 
 import React, {useEffect, useState} from 'react';
 import {StatusBar, useColorScheme} from 'react-native';
@@ -139,10 +132,8 @@ const App = () => {
   }, [network]);
   useEffect(() => {
     // requestCameraPermission();
-    // SplashScreen.show();
     initNetwork();
     _getBalanceFirstTime();
-    // SplashScreen.hide();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const isDarkMode = useColorScheme() === 'dark';
@@ -158,10 +149,6 @@ const App = () => {
     <NavigationContainer>
       <NativeBaseProvider theme={CreateTheme}>
         <SafeAreaView style={{height: '100%'}}>
-          {/* <Box w="full" h="full">
-            <Image source={splashScreen} alt="splashScreen" w="full" />
-          </Box> */}
-
           <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
           {!onboardingViewed ? (
             <Onboarding

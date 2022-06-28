@@ -1,12 +1,12 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import styles from './styles';
 import {Button, Box, Center, Text, Image} from 'native-base';
 // import {Link} from '@react-navigation/native';
 import logo from '../../images/logo.png';
 import LoginPrivateKey from './LoginPrivatekey';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
-import {TouchableOpacity, ScrollView, KeyboardAvoidingView} from 'react-native';
+// import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+// import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
+import {ScrollView, KeyboardAvoidingView} from 'react-native';
 import {createWallet, getCurrentAccount} from '../../util/script';
 import bip39 from 'react-native-bip39';
 // import * as HaskellShelley from '../../libs/HaskellShelley';
@@ -21,11 +21,7 @@ export default function Welcome(props) {
   let navigation = props.navigation;
   const dispatch = useDispatch();
   const [status, setStatus] = useState('');
-  const [mnemonic, setMnemonic] = useState(
-    'crystal silk squeeze arrive inject list satoshi focus near garlic stool need lock tray canoe embody rescue scrub clump cycle few riot shiver tobacco',
-  );
-  // let name = 'nntruong',
-  //   password = '123456';
+  const [mnemonic, setMnemonic] = useState('');
   const onBack = () => setStatus('');
   const account = async (name, password) => {
     const checkStore = await getStorage(STORAGE.encryptedKey);
@@ -78,7 +74,7 @@ export default function Welcome(props) {
   return (
     <Box p="4" h="full" bg="white">
       <Box h="30px">
-        {status === 'wallet' ? (
+        {/* {status === 'wallet' ? (
           <TouchableOpacity
             onPress={() => {
               setStatus('');
@@ -91,12 +87,12 @@ export default function Welcome(props) {
           </TouchableOpacity>
         ) : (
           ''
-        )}
+        )} */}
       </Box>
       <KeyboardAvoidingView
         behavior="padding"
         enabled
-        keyboardVerticalOffset={-100}
+        keyboardVerticalOffset={-400}
         keyboardShouldPersistTaps="always">
         <ScrollView h="full">
           <Center flex={1} minH="300px">
