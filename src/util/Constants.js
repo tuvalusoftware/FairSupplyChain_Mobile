@@ -14,7 +14,7 @@ export const clearStorage = async () => {
   await AsyncStorage.clear();
 };
 const Constants = {
-  STATUS: ['Verified', 'Verifying', 'Rejected'],
+  STATUS: ['Issued', 'Revoked'],
   LIST_TYPE_DOCUMENT: [
     'Certificate of Analysis (COA)',
     'Packing List',
@@ -25,13 +25,38 @@ const Constants = {
     'Bill of Lading (BOL)',
     'Insurance Certificate Other',
   ],
-  LIST_ISSUER: [
-    'Ghana Food & Drug',
-    'Ministry of Food & Agriculture',
-    'Ghana Irrigation Development Authority (GIDA)',
-    'Agricultural law in Ghana',
-    'Other',
-  ],
+  LIST_ISSUER: ['Ghana Food & Drug'],
+  FORM_LABEL: {
+    name: 'Name',
+    title: 'Document title',
+    remarks: 'Remarks',
+    type: 'Document type',
+    fileName: 'File name',
+    did: 'DID',
+    intention: 'Intention',
+    stress: 'Stress',
+    address: 'Address',
+    additionalAddress: 'Additional address',
+    telephoneNumber: 'Telephone number',
+    designation: 'Designation',
+    date: 'Date',
+    shippingInformation: 'Shipping information',
+    customInformation: 'Custom information',
+    declarationInformation: 'Declaration information',
+    certification: 'Certification',
+    general: 'General',
+    countryName: 'Country name',
+    declarationName: 'Declaration name',
+    certificationName: 'Certification name',
+    signature: 'Signature',
+    analysisResults: 'Analysis Results',
+    water: 'Water Insoluble Matter',
+    nameAddressCountry: "Farmer's name, address and country:",
+    farmerName: "Farmer's Name",
+    zipCode: 'Zip Code',
+    CuSO45H2O: 'CuSO4.5H2O',
+  },
+  READ_ONLY_FIELD: ['name', 'intention', 'signature'],
   STORAGE: {
     encryptedKey: 'encryptedKey',
     network: 'network',
@@ -53,6 +78,8 @@ const Constants = {
   getStorage,
   setStorage,
   isManager: role => role === 3,
+  // authServer:
+  //   'https://enigmatic-sands-00024.herokuapp.com/18.139.84.180:12000/api/auth/',
   authServer: 'http://18.139.84.180:12000/api/auth/',
   // authServer: 'http://192.168.1.10:15000/api/auth/',
 };

@@ -40,6 +40,7 @@ export default function DocumentDetail(props) {
     setData(_dataForSheet);
     onOpen();
   };
+  return null;
   console.log(message);
   const reject = () => {
     let _dataForSheet = {

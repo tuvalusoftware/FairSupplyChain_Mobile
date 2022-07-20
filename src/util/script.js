@@ -49,8 +49,8 @@ export const createWallet = async (name, seedPhrase, password) => {
 
     await setStorage(STORAGE.encryptedKey, encryptedRootKey);
     await setNetwork({
-      id: NETWORK_ID.mainnet,
-      node: NODE.mainnet,
+      id: NETWORK_ID.testnet,
+      node: NODE.testnet,
     });
     // await setStorage(
     //   STORAGE.network,
@@ -470,6 +470,10 @@ export const loginAuthServer = async (params, access_token) => {
     result = rawResult;
   } catch (err) {
     console.log(err);
+    throw Error('Login Auth Failed ' + (err?.message || err));
+  }
+  if (!result) {
+    throw Error('Login Auth Failed no result');
   }
   return result;
 };
@@ -483,6 +487,10 @@ export const getRandomNumber = async () => {
     result = await rawResult.json();
   } catch (err) {
     console.log('getRandomNumber error', err);
+    throw Error('Get Random Number faild' + err.message);
+  }
+  if (!result) {
+    throw Error('Get Random Number faild');
   }
   return result;
 };
@@ -506,19 +514,83 @@ export const verifyAccessToken = async access_token => {
   return result;
 };
 
-export const signData = async (address, payload, password, accountIndex) => {
-  let {paymentKey, stakeKey} = await requestAccountKey(password, accountIndex);
-  let typeAddress = await getTypeAddress(address);
-  const accountKey = typeAddress === 'payment' ? paymentKey : stakeKey;
-  const publicKey = await accountKey.to_public();
+export const signData = async (
+  address,
+  payload,
+  password,
+  accountIndex = 0,
+) => {
+  try {
+    let {paymentKey, stakeKey} = await requestAccountKey(
+      password,
+      accountIndex,
+    );
+    let typeAddress = await getTypeAddress(address);
+    const accountKey = typeAddress === 'payment' ? paymentKey : stakeKey;
+    const publicKey = await accountKey.to_public();
 
+    const protectedHeaders = await CardanoMessageSigning.HeaderMap.new();
+    await protectedHeaders.set_algorithm_id(
+      await CardanoMessageSigning.Label.from_algorithm_id(
+        await CardanoMessageSigning.AlgorithmId.EdDSA,
+      ),
+    );
+    await protectedHeaders.set_key_id(await publicKey.as_bytes());
+    await protectedHeaders.set_header(
+      await CardanoMessageSigning.Label.new_text('address'),
+      await CardanoMessageSigning.CBORValue.new_bytes(
+        Buffer.from(address, 'hex'),
+      ),
+    );
+    const protectedSerialized =
+      await CardanoMessageSigning.ProtectedHeaderMap.new(protectedHeaders);
+    const unprotectedHeaders = await CardanoMessageSigning.HeaderMap.new();
+    const headers = await CardanoMessageSigning.Headers.new(
+      protectedSerialized,
+      unprotectedHeaders,
+    );
+    const builder = await CardanoMessageSigning.COSESign1Builder.new(
+      headers,
+      Buffer.from(payload, 'hex'),
+      false,
+    );
+    const toSign = await (await builder.make_data_to_sign()).to_bytes();
+    const signedSigStruc = await (await accountKey.sign(toSign)).to_bytes();
+    const coseSign1 = await builder.build(signedSigStruc);
+
+    stakeKey.free();
+    stakeKey = null;
+    paymentKey.free();
+    paymentKey = null;
+
+    return Buffer.from(await coseSign1.to_bytes(), 'hex').toString('hex');
+  } catch (err) {
+    throw Error('Incorrect Password ');
+  }
+};
+
+export const signDataCIP30 = async (
+  address,
+  payload,
+  password,
+  accountIndex,
+) => {
+  const keyHash = await extractKeyHash(address);
+  const prefix = keyHash.slice(0, 5);
+  let {paymentKey, stakeKey} = await requestAccountKey(password, accountIndex);
+  const accountKey = prefix === 'hbas_' ? paymentKey : stakeKey;
+
+  const publicKey = accountKey.to_public();
+  if (keyHash !== publicKey.hash().to_bech32(prefix)) {
+    throw 'DataSignError.ProofGeneration';
+  }
   const protectedHeaders = await CardanoMessageSigning.HeaderMap.new();
   await protectedHeaders.set_algorithm_id(
     await CardanoMessageSigning.Label.from_algorithm_id(
-      await CardanoMessageSigning.AlgorithmId.EdDSA,
+      CardanoMessageSigning.AlgorithmId.EdDSA,
     ),
   );
-  await protectedHeaders.set_key_id(await publicKey.as_bytes());
+  // protectedHeaders.set_key_id(publicKey.as_bytes()); // Removed to adhere to CIP-30
   await protectedHeaders.set_header(
     await CardanoMessageSigning.Label.new_text('address'),
     await CardanoMessageSigning.CBORValue.new_bytes(
@@ -538,6 +610,7 @@ export const signData = async (address, payload, password, accountIndex) => {
     false,
   );
   const toSign = await (await builder.make_data_to_sign()).to_bytes();
+
   const signedSigStruc = await (await accountKey.sign(toSign)).to_bytes();
   const coseSign1 = await builder.build(signedSigStruc);
 
@@ -546,7 +619,39 @@ export const signData = async (address, payload, password, accountIndex) => {
   paymentKey.free();
   paymentKey = null;
 
-  return Buffer.from(await coseSign1.to_bytes(), 'hex').toString('hex');
+  const key = await CardanoMessageSigning.COSEKey.new(
+    await CardanoMessageSigning.Label.from_key_type(
+      CardanoMessageSigning.KeyType.OKP,
+    ),
+  );
+  await key.set_algorithm_id(
+    await CardanoMessageSigning.Label.from_algorithm_id(
+      CardanoMessageSigning.AlgorithmId.EdDSA,
+    ),
+  );
+  await key.set_header(
+    await CardanoMessageSigning.Label.new_int(
+      await CardanoMessageSigning.Int.new_negative(
+        await CardanoMessageSigning.BigNum.from_str('1'),
+      ),
+    ),
+    await CardanoMessageSigning.CBORValue.new_int(
+      await CardanoMessageSigning.Int.new_i32(6), //CardanoMessageSigning.CurveType.Ed25519
+    ),
+  ); // crv (-1) set to Ed25519 (6)
+  await key.set_header(
+    await CardanoMessageSigning.Label.new_int(
+      await CardanoMessageSigning.Int.new_negative(
+        await CardanoMessageSigning.BigNum.from_str('2'),
+      ),
+    ),
+    await CardanoMessageSigning.CBORValue.new_bytes(publicKey.as_bytes()),
+  ); // x (-2) set to public key
+
+  return {
+    signature: Buffer.from(coseSign1.to_bytes()).toString('hex'),
+    key: Buffer.from(key.to_bytes()).toString('hex'),
+  };
 };
 
 export const getTypeAddress = async address => {

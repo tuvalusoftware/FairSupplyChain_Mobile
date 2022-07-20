@@ -7,6 +7,7 @@ import Documents from '../screen/Documents';
 import CreateDocument from '../screen/CreateDocument';
 import DocumentDetail from '../screen/DocumentDetail';
 import Notifications from '../screen/Notifications';
+import Profile from '../screen/Profile';
 const routes = [
   {
     component: WelcomeScreen,
@@ -42,6 +43,10 @@ const routes = [
     component: DocumentDetail,
     name: 'DocumentDetail',
     options: {headerShown: false},
+  },
+  {
+    component: Profile,
+    name: 'Profile',
   },
   {
     component: Notifications,

@@ -1,9 +1,9 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable no-undef */
 import React, {useState} from 'react';
-import {Box, Input, FormControl, Text} from 'native-base';
+import {Box, Input, FormControl, ScrollView, Text} from 'native-base';
 import Constants, {setStorage} from '../../util/Constants';
-
+import ChangeNetwork from '../ChangeNetwork';
 import ConfirmSheet from '../../components/ConfirmSheet';
 import {
   getRandomNumber,
@@ -13,7 +13,11 @@ import {
 } from '../../util/script';
 import {useDispatch} from 'react-redux';
 import {userSliceActions} from '../../redux/reducer/user';
-export default function LoginSheet({openLogin, setOpenLogin}) {
+export default function LoginSheet({
+  openLogin,
+  hideChangeNetwork,
+  setOpenLogin,
+}) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isRequesting, setIsRequesting] = useState(false);
@@ -41,14 +45,15 @@ export default function LoginSheet({openLogin, setOpenLogin}) {
   };
   const login = async () => {
     setIsRequesting(true);
-
     try {
       let {dataRandomNumber, access_token} = await _getRandomNumber();
+      console.log('LULU1', access_token);
       let address = await getAddress();
       let payload = Buffer.from(
         JSON.stringify(dataRandomNumber),
         'utf8',
       ).toString('hex');
+
       let _signData = await signData(address, payload, password, 0);
       let res = await loginAuthServer(
         {
@@ -60,7 +65,7 @@ export default function LoginSheet({openLogin, setOpenLogin}) {
         },
         access_token,
       );
-      console.log('loginAuthServer', res.data);
+      console.log('LULU', res.data?.data?.access_token);
       if (!res.data?.error_code) {
         await setStorage(
           Constants.STORAGE.access_token,
@@ -71,7 +76,7 @@ export default function LoginSheet({openLogin, setOpenLogin}) {
         });
       }
     } catch (err) {
-      setError('Incorrect password');
+      setError(err?.message || err);
       console.log('login error', err);
       setIsRequesting(false);
       return;
@@ -98,29 +103,36 @@ export default function LoginSheet({openLogin, setOpenLogin}) {
       okStyle={{
         borderRadius: '30px',
         isDisabled: isRequesting,
+        isLoading: isRequesting,
+        isLoadingText: 'Login',
       }}
       okLabel="Login"
       description={() => {
         return (
-          <Box mt="12px">
-            <Text textAlign="center">
-              All is almost done, please login to the system with your wallet to
-              complete the connection process then you can create and verify the
-              document.
-            </Text>
-            <Text bold mt="12px" mb="12px">
-              Password
-            </Text>
-
-            <FormControl w="full" isInvalid={Boolean(error)}>
-              <Input
-                onChangeText={onPasswordChange}
-                placeholder="Enter your password"
-                type="password"
-                w="full"
-              />
-              <FormControl.ErrorMessage>{error}</FormControl.ErrorMessage>
-            </FormControl>
+          <Box mt="12px" h={hideChangeNetwork ? '200px' : '300px'}>
+            <ScrollView h="200px">
+              <Text textAlign="center">
+                All is almost done, please login to the system with your wallet
+                to complete the connection process then you can create and
+                verify the document.
+              </Text>
+              {hideChangeNetwork ? null : (
+                <ChangeNetwork containerStyle={{mb: '12px', mt: '12px'}} />
+              )}
+              <Text bold mt="12px" mb="12px">
+                Password
+              </Text>
+              <FormControl w="full" isInvalid={Boolean(error)}>
+                <Input
+                  onChangeText={onPasswordChange}
+                  placeholder="Enter your password"
+                  type="password"
+                  w="full"
+                  isDisabled={isRequesting}
+                />
+                <FormControl.ErrorMessage>{error}</FormControl.ErrorMessage>
+              </FormControl>
+            </ScrollView>
           </Box>
         );
       }}

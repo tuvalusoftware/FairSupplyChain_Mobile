@@ -13,7 +13,7 @@ const initialModel = {
   },
   isLogged: false,
   role: 2,
-  network: 'mainnet',
+  network: 'testnet',
   connectedAuthServer: false,
   isOpenLoginModal: false,
 };

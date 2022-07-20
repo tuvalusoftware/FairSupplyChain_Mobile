@@ -7,17 +7,22 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import HomeTab from './Home/HomeTab';
 import CreateDocument from '../CreateDocument';
 import styles from './styles';
-import Profile from '../Profile';
 import {TouchableOpacity} from 'react-native';
 import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
 import Constants, {setStorage} from '../../util/Constants';
 import Documents from '../Documents';
 import ModalSeed from './ModalSeed';
 import LoginSheet from '../../components/LoginSheet';
-import {verifyAccessToken} from '../../util/script';
+import {verifyAccessToken, getAddress} from '../../util/script';
 import {useDispatch} from 'react-redux';
 import {userSliceActions} from '../../redux/reducer/user';
 import {getStorage} from '../../util/Constants';
+import {documentsSliceActions} from '../../redux/reducer/documents';
+import Gallery from '../Gallery';
+import {
+  getTransactions,
+  getWrappedDocumentsContent,
+} from '../../libs/fuixlabs-documentor';
 const Tab = createBottomTabNavigator();
 export default function Main(props) {
   const [open, setOpen] = useState(false);
@@ -32,7 +37,6 @@ export default function Main(props) {
   const {colors} = useTheme();
   const dispatch = useDispatch();
   useEffect(() => {
-    console.log('useEffect');
     initData();
   }, [props.route?.params?.mnemonic]);
   const initData = async () => {
@@ -43,6 +47,7 @@ export default function Main(props) {
     await checkConnected(_mnemonic);
     setInitData(false);
   };
+
   const handleClose = () => {
     setOpen(false);
     if (!connected) {
@@ -61,15 +66,19 @@ export default function Main(props) {
       //call verify api
       let res;
       try {
+        console.log('_access_token', _access_token);
         res = await verifyAccessToken(_access_token);
+        console.log('checkConnected', res?.data);
         if (!res.data?.error_code) {
           dispatchUser({
             connectedAuthServer: true,
           });
-          await setStorage(
-            Constants.STORAGE.access_token,
-            res?.data?.access_token,
-          );
+
+          _getTransition();
+          // await setStorage(
+          //   Constants.STORAGE.access_token,
+          //   res?.data?.access_token,
+          // );
         }
       } catch (err) {
         dispatchUser({
@@ -85,7 +94,18 @@ export default function Main(props) {
       setOpenLogin(true);
     }
   };
-
+  const _getTransition = async () => {
+    dispatch(documentsSliceActions.setFetchingDocuments({status: true}));
+    try {
+      let address = await getAddress();
+      let transition = await getTransactions(address);
+      let data = await getWrappedDocumentsContent(transition);
+      dispatch(documentsSliceActions.fetchDocuments({data}));
+    } catch (err) {
+      console.log(err);
+    }
+    dispatch(documentsSliceActions.setFetchingDocuments({status: false}));
+  };
   if (isInitData) {
     //render skeleton
     return null;
@@ -165,14 +185,14 @@ export default function Main(props) {
           />
         )}
         <Tab.Screen
-          name="Profile"
-          component={Profile}
+          name="Gallery"
+          component={Gallery}
           options={{
             headerShown: true,
-            tabBarLabel: 'Profile',
+            tabBarLabel: 'Gallery',
             tabBarIcon: ({color, focused}) => (
               <MaterialCommunityIcons
-                name="account-circle-outline"
+                name="folder-outline"
                 size={30}
                 color={focused ? colors.primary[500] : color}
               />

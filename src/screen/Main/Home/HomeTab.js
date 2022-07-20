@@ -17,52 +17,53 @@ import NotConnectServerForm from './NotConnectServerForm';
 import LoginSheet from '../../../components/LoginSheet';
 export default function Home(props) {
   const [openLogin, setOpenLogin] = useState(false);
-  const {user, documents} = useShallowEqualSelector(state => ({
+  const {user, documents, isFetching} = useShallowEqualSelector(state => ({
     documents: state.documents.data,
     user: state.user,
+    isFetching: state.documents.isFetching,
   }));
   const connectedAuthServer = user?.connectedAuthServer;
-  const [countVerify, setCount] = useState([0, 0, 0]);
+  // const [countVerify, setCount] = useState([0, 0, 0]);
   const {colors} = useTheme();
-  useEffect(() => {
-    let newCount = [0, 0, 0];
-    documents.forEach(element => {
-      if (element.status === 'Verified') {
-        newCount[0]++;
-      }
-      if (element.status === 'Verifying') {
-        newCount[1]++;
-      }
-      if (element.status === 'Rejected') {
-        newCount[2]++;
-      }
-    });
-    setCount(newCount);
-  }, []);
-  let lists = [
-    {
-      number: countVerify[0],
-      styles: {w: Constants.isManager(user.role) ? '32%' : '48%'},
-      logo: Constants.isManager(user.role) ? '' : verified,
-      text: 'Verified' + (Constants.isManager(user.role) ? '' : 'Docs'),
-    },
-    {
-      number: countVerify[1],
-      styles: {
-        bgColor: '#E09A0D',
-        w: Constants.isManager(user.role) ? '32%' : '48%',
-      },
-      logo: Constants.isManager(user.role) ? '' : verifying,
-      text: 'Verifying' + (Constants.isManager(user.role) ? '' : 'Docs'),
-    },
-  ];
-  if (Constants.isManager(user.role)) {
-    lists.push({
-      number: countVerify[2],
-      styles: {bgColor: '#274A54', w: '32%'},
-      text: 'Rejected',
-    });
-  }
+  // useEffect(() => {
+  //   let newCount = [0, 0, 0];
+  //   documents.forEach(element => {
+  //     if (element.status === 'Verified') {
+  //       newCount[0]++;
+  //     }
+  //     if (element.status === 'Verifying') {
+  //       newCount[1]++;
+  //     }
+  //     if (element.status === 'Rejected') {
+  //       newCount[2]++;
+  //     }
+  //   });
+  //   setCount(newCount);
+  // }, []);
+  // let lists = [
+  //   {
+  //     number: countVerify[0],
+  //     styles: {w: Constants.isManager(user.role) ? '32%' : '48%'},
+  //     logo: Constants.isManager(user.role) ? '' : verified,
+  //     text: 'Verified' + (Constants.isManager(user.role) ? '' : 'Docs'),
+  //   },
+  //   {
+  //     number: countVerify[1],
+  //     styles: {
+  //       bgColor: '#E09A0D',
+  //       w: Constants.isManager(user.role) ? '32%' : '48%',
+  //     },
+  //     logo: Constants.isManager(user.role) ? '' : verifying,
+  //     text: 'Verifying' + (Constants.isManager(user.role) ? '' : 'Docs'),
+  //   },
+  // ];
+  // if (Constants.isManager(user.role)) {
+  //   lists.push({
+  //     number: countVerify[2],
+  //     styles: {bgColor: '#274A54', w: '32%'},
+  //     text: 'Rejected',
+  //   });
+  // }
 
   const renderDocumentItem = (document, index) => {
     console.log(document);
@@ -93,6 +94,7 @@ export default function Home(props) {
       </TouchableOpacity>
     );
   };
+  console.log(isFetching);
   return (
     <Box h="full" flexDirection="column">
       <Flex
@@ -100,15 +102,16 @@ export default function Home(props) {
         bg="white"
         justifyContent="space-between"
         // p="6px"
-        px="16px">
+        px="16px"
+        mb="22px">
         <AccountButton />
         {Constants.isManager(user.role) ? '' : <NotificationButton />}
       </Flex>
-      <Flex direction="row" justifyContent="space-between" mb="20px" p="4">
+      {/* <Flex direction="row" justifyContent="space-between" mb="20px" p="4">
         {lists.map((item, index) => {
           return <VerifiedDocs key={index} {...item} />;
         })}
-      </Flex>
+      </Flex> */}
       <Box px="4" flex={1}>
         {connectedAuthServer ? (
           <ListDocument
@@ -120,6 +123,7 @@ export default function Home(props) {
               Constants.isManager(user.role) ? renderDocumentItem : ''
             }
             isManager={Constants.isManager(user.role)}
+            isFetching={isFetching}
           />
         ) : (
           <NotConnectServerForm setOpenLogin={setOpenLogin} />

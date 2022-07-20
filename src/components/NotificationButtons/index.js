@@ -10,7 +10,7 @@ export default function NotificationButton() {
   return (
     <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
       <Box position="relative" mr="10px" h="50px" justifyContent="center">
-        <MaterialCommunityIcons name="bell" size={30} />
+        <MaterialCommunityIcons name="bell" size={30} color="black" />
         <Box
           bgColor="white"
           position="absolute"

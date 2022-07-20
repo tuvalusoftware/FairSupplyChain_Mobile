@@ -5,36 +5,16 @@ import moment from 'moment';
 import ButtonLink from '../ButtonLink';
 import {TouchableOpacity} from 'react-native';
 import DocumentStatus from '../DocumentStatus';
+import DocumentTemplate from '../DocumentTemplate';
 export default function DocumentItem(props) {
-  const {image, title, createAt, status, id} = props.document;
+  const {assetId, data} = props.document;
   const navigation = props.navigation;
+  console.log(data.name);
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate('DocumentDetail', {id})}>
+      onPress={() => navigation.navigate('DocumentDetail', {id: assetId})}>
       <Box {...styles.container}>
-        <Box {...styles.containerImage}>
-          <Image {...styles.image} source={image} alt={title} />
-        </Box>
-        <Flex {...styles.footer} direction="row">
-          <Box flex={1}>
-            <Text bold>{title}</Text>
-            <Text color="#00000073" fontSize={12}>
-              Submitted at {moment(createAt).format('DD MMM YYYY')}
-            </Text>
-          </Box>
-          {status === 'Rejected' ? (
-            <Box justifyContent="center" w="80px">
-              <ButtonLink
-                text="See why"
-                icon="open-in-new"
-                onPress={() => console.log('see why')}
-              />
-            </Box>
-          ) : (
-            ''
-          )}
-        </Flex>
-        <DocumentStatus status={status} mt="12px" />
+        <DocumentTemplate document={props.document} />
       </Box>
     </TouchableOpacity>
   );

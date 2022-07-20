@@ -1,5 +1,6 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useRef, useState} from 'react';
-import {Box, Flex, Stack, Text, Radio, useTheme} from 'native-base';
+import {Box, Flex, Text, useTheme} from 'native-base';
 import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
 import {TouchableOpacity} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -9,17 +10,16 @@ import Clipboard from '@react-native-community/clipboard';
 import {useDispatch} from 'react-redux';
 import {userSliceActions} from '../../redux/reducer/user';
 import EditModel from './EditDisplayName';
+import ChangeNetwork from '../../components/ChangeNetwork';
 import styles from './styles';
+import LoginSheet from '../../components/LoginSheet';
 import {
-  setNetwork,
-  getNetwork,
   // fetchPrice,
   getBalance,
 } from '../../util/script';
-import {NETWORK_ID, NODE} from '../../util/Constants';
-
 const Row = ({data}) => {
   const {colors} = useTheme();
+
   return (
     <Flex direction="row" mt="12px">
       <Box {...styles.icon}>
@@ -86,20 +86,15 @@ const ButtonEdit = props => {
 export default function Index(props) {
   const user = useShallowEqualSelector(state => state.user);
   const _network = useShallowEqualSelector(state => state.user.network);
-  const [status, setStatus] = useState(NETWORK_ID.mainnet);
   const {colors} = useTheme();
+  const [openLogin, setOpenLogin] = useState(false);
   // const [price, setPrice] = useState(1);
   const [openEdit, setOpenEdit] = useState(false);
   const dispatch = useDispatch();
   // let interval = '';
   const [interval, setInterval] = useState('');
   let navigation = props.navigation;
-  const _setStatus = async () => {
-    let network = await getNetwork();
-    setStatus(network.id);
-  };
   useEffect(() => {
-    _setStatus();
     fetchBalance(_network);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [_network]);
@@ -126,29 +121,6 @@ export default function Index(props) {
     );
     let _interval = setTimeout(() => fetchBalance(network), 60000);
     setInterval(_interval);
-  };
-  const onChangeNetwork = network => {
-    if (network === NETWORK_ID.mainnet) {
-      dispatch(
-        userSliceActions.setData({
-          network: NETWORK_ID.mainnet,
-        }),
-      );
-      setNetwork({
-        id: NETWORK_ID.mainnet,
-        node: NODE.mainnet,
-      });
-      return;
-    }
-    dispatch(
-      userSliceActions.setData({
-        network: NETWORK_ID.testnet,
-      }),
-    );
-    setNetwork({
-      id: NETWORK_ID.testnet,
-      node: NODE.testnet,
-    });
   };
   const compact = (string, length) => {
     if (string?.length > length) {
@@ -187,6 +159,9 @@ export default function Index(props) {
       button: () => <ButtonCopy text={user.userInfo.paymentAddr} />,
     },
   ];
+  const onChangeNetwork = () => {
+    setOpenLogin(true);
+  };
   return (
     <Box>
       <Flex bg="white" mb="12px" p="18px" mt="12px">
@@ -198,29 +173,14 @@ export default function Index(props) {
         ))}
       </Flex>
 
-      <Flex bg="white" mb="12px" p="18px" mt="12px">
-        <Text bold mb="12px">
-          Network
-        </Text>
-        <Radio.Group onChange={onChangeNetwork} value={status}>
-          <Stack
-            mt="12px"
-            direction={{
-              base: 'row',
-              md: 'row',
-            }}
-            alignItems={{
-              base: 'flex-start',
-              md: 'center',
-            }}
-            space={12}
-            w="75%"
-            maxW="300px">
-            <Radio value={NETWORK_ID.testnet}>Testnet</Radio>
-            <Radio value={NETWORK_ID.mainnet}>Mainnet</Radio>
-          </Stack>
-        </Radio.Group>
-      </Flex>
+      <ChangeNetwork
+        containerStyle={{
+          bg: 'white',
+          mb: '12px',
+          p: '18px',
+        }}
+        onChangeNetwork={onChangeNetwork}
+      />
 
       <TouchableOpacity onPress={_logout}>
         <Box
@@ -244,6 +204,12 @@ export default function Index(props) {
         isOpen={openEdit}
         onClose={() => setOpenEdit(false)}
         displayName={user.userInfo.name}
+      />
+      <LoginSheet
+        openLogin={openLogin}
+        setOpenLogin={setOpenLogin}
+        hideChangeNetwork
+        // error={error}
       />
     </Box>
   );

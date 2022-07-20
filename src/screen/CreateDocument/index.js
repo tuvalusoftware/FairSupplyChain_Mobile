@@ -20,15 +20,27 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import ConfirmSheet from './ConfirmSheet';
 import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
 import styles from './styles';
-
+import {
+  createDocument,
+  verifyCardanoDocument,
+} from '../../libs/fuixlabs-documentor';
+import {signData, getAddress} from '../../util/script';
 const _contentContainerStyle = {flexGrow: 1};
+
 export default function CreateDocument(props) {
   const [type, setType] = useState('');
-  const [issuer, setIssuer] = useState('');
+  const [issuer, setIssuer] = useState(Constants.LIST_ISSUER[0]);
   const [files, setFiles] = useState([]);
-  const [data, setData] = useState({name: '', nameFarm: '', address: ''});
+  const [data, setData] = useState({});
+  const [password, setPassword] = useState('');
+  const [isRequesting, setIsRequesting] = useState('');
+  const [error, setError] = useState('');
   const {isOpen, onOpen, onClose} = useDisclose();
-  const settings = useShallowEqualSelector(state => state.settings);
+  const {settings, user} = useShallowEqualSelector(state => ({
+    settings: state.settings,
+    user: state.user,
+  }));
+
   const {colors} = useTheme();
   const openCamera = async () => {
     try {
@@ -63,16 +75,94 @@ export default function CreateDocument(props) {
     return string;
   };
   const disabled = () => {
-    return !(type && issuer && files.length);
+    return !(type && issuer);
   };
-  const onOk = () => {
+  console.log(user.userInfo);
+  const onOk = async () => {
+    setIsRequesting(true);
+    let address = await getAddress();
+    try {
+      const {wrappedDocument} = await createDocument(
+        [data],
+        address,
+        false,
+        {},
+        async (_address, payload) =>
+          await signData(_address, payload, password, 0),
+      );
+      console.log('wrappedDocument', wrappedDocument);
+      onClose();
+      setIsRequesting(false);
+    } catch (err) {
+      console.log(err);
+      setError(err);
+      setIsRequesting(false);
+    }
+  };
+  const _onClose = () => {
+    if (isRequesting) {
+      return;
+    }
     onClose();
+    setError('');
   };
-  const onChange = (text, key) => {
+  const onPasswordChange = e => {
+    setPassword(e);
+    setError('');
+  };
+  const onChange = (text, key, parentKey) => {
+    console.log(text, key, parentKey);
     let _data = {...data};
-    _data[key] = text;
+    if (parentKey) {
+      _data[parentKey][key] = text;
+    } else {
+      _data[key] = text;
+    }
+
     setData(_data);
   };
+
+  const isHasAttachments = () => {
+    return (
+      settings.document.typeDocument[type]?.forms &&
+      settings.document.typeDocument[type]?.forms[0].attachments
+    );
+  };
+  const renderForm = (form, parentKey) => {
+    if (!form) {
+      return '';
+    }
+    let keys = Object.keys(form);
+    return keys.map((key, index) => {
+      // console.log('first,', parentKey, key);
+      if (typeof form[key] === 'object') {
+        // console.log('object');
+        return (
+          <Box mt="22px" key={key}>
+            <Text bold fontSize={16} paddingLeft="8px">
+              {Constants.FORM_LABEL[key] || key}
+            </Text>
+            {renderForm(form[key], key)}
+          </Box>
+        );
+      }
+      return (
+        <Box key={key + parentKey} paddingLeft={parentKey ? '22px' : '8px'}>
+          <Text mb="12px" mt="12px" bold>
+            {Constants.FORM_LABEL[key] || key}
+          </Text>
+          <Input
+            bg="#F5F5F5"
+            onChangeText={e => onChange(e, key, parentKey)}
+            value={form[key]}
+            placeholder={'Enter ' + (Constants.FORM_LABEL[key] || key)}
+            isDisabled={Constants.READ_ONLY_FIELD.includes(key)}
+          />
+        </Box>
+      );
+    });
+  };
+  console.log('data', data);
   return (
     <Box h="full" mt="12px" pb="22px">
       <ScrollView flex={1} _contentContainerStyle={_contentContainerStyle}>
@@ -87,7 +177,14 @@ export default function CreateDocument(props) {
           {settings.document?.typeDocument ? (
             <SelectBox
               value={type}
-              onChange={setType}
+              onChange={e => {
+                setType(e);
+                console.log(
+                  'settings.document.typeDocument[e]?.forms[0]?.data',
+                  settings.document.typeDocument[e]?.forms[0]?.data,
+                );
+                setData({...settings.document.typeDocument[e]?.forms[0]?.data});
+              }}
               items={Object.keys(settings.document?.typeDocument)}
               placeholder="Select type"
               title={'Type of Document'}
@@ -101,123 +198,121 @@ export default function CreateDocument(props) {
           <Text bold fontSize={16} mb="12px">
             Config Document
           </Text>
-          {settings.document.typeDocument[type]?.map((item, index) => {
-            return (
-              <Box key={index}>
-                <Text mb="12px" mt="12px">
-                  {item.title}
-                </Text>
-                <Input
-                  bg="#F5F5F5"
-                  onChangeText={e => onChange(e, item.key)}
-                  value={data[item.key]}
-                  placeholder={'Enter ' + item.title}
-                />
-              </Box>
-            );
-          })}
-          <Text mt="16px">Attachments</Text>
-          <Flex bg="#F5F5F5" direction="row" p="12px" px="0px" mt="12px">
-            <Box w="50px" alignItems="center">
-              <MaterialCommunityIcons
-                name="cloud-upload"
-                size={30}
-                color={colors.primary[500]}
-              />
-            </Box>
-            <Box flex={1} px="12px">
-              <TouchableOpacity onPress={openPhotos}>
-                <Flex {...styles.uploadFile}>
-                  <Text bold>Tap to upload files</Text>
-                  <Text {...styles.uploadFileText}>
-                    Upload documents such as Certificate of Origin, Certificate
-                    of Analysis, etc. Max. total file size: 5MB (JPGs, JPEGs,
-                    and PNGs supported)
-                  </Text>
-                </Flex>
-              </TouchableOpacity>
-              <Flex
-                direction="row"
-                alignItems="center"
-                justifyContent="center"
-                mt="12px">
-                <Divider w="34%" bg="#00000019" />
-                <Text bold mx="22px">
-                  Or
-                </Text>
-                <Divider w="34%" bg="#00000019" />
-              </Flex>
-              <Button variant="outline" mt="12px" onPress={openCamera} w="full">
-                <Flex direction="row" alignItems="center">
+          {renderForm(data)}
+          {isHasAttachments() ? (
+            <>
+              <Text mt="16px">Attachments</Text>
+              <Flex bg="#F5F5F5" direction="row" p="12px" px="0px" mt="12px">
+                <Box w="50px" alignItems="center">
                   <MaterialCommunityIcons
-                    name="camera-plus"
+                    name="cloud-upload"
                     size={30}
                     color={colors.primary[500]}
                   />
-                  <Text color="primary.500" ml="12px">
-                    Take A Photo
-                  </Text>
-                </Flex>
-              </Button>
-            </Box>
-          </Flex>
-        </Box>
-        <Box bg="white" p="12px" mt="12px" minH="100px">
-          <Text bold>File to be uploaded:</Text>
-          {files.length ? (
-            files.map((item, index) => {
-              return (
-                <Flex {...styles.fileUploaded} key={index}>
-                  <Box
-                    style={{
-                      elevation: 4,
-                      shadowColor: 'black',
-                    }}
-                    mr="12px">
-                    <Image
-                      source={{uri: item.uri}}
-                      alt={item.fileName}
-                      w="50px"
-                      h="55px"
-                    />
-                  </Box>
-                  <Box justifyContent="center" flex={1}>
-                    <Text bold>{compact(item.fileName)}</Text>
-                    <Text color="#0EC37D" fontSize="12px">
-                      Ready for request{' '}
-                      <MaterialCommunityIcons
-                        name="check-circle"
-                        size={20}
-                        color={'#0EC37D'}
-                      />
-                    </Text>
-                  </Box>
-
-                  <TouchableOpacity onPress={() => remove(index)}>
-                    <Box {...styles.removeButton}>
-                      <MaterialCommunityIcons
-                        name="close"
-                        size={20}
-                        color={'black'}
-                      />
-                    </Box>
+                </Box>
+                <Box flex={1} px="12px">
+                  <TouchableOpacity onPress={openPhotos}>
+                    <Flex {...styles.uploadFile}>
+                      <Text bold>Tap to upload files</Text>
+                      <Text {...styles.uploadFileText}>
+                        Upload documents such as Certificate of Origin,
+                        Certificate of Analysis, etc. Max. total file size: 5MB
+                        (JPGs, JPEGs, and PNGs supported)
+                      </Text>
+                    </Flex>
                   </TouchableOpacity>
-                </Flex>
-              );
-            })
+                  <Flex
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="center"
+                    mt="12px">
+                    <Divider w="34%" bg="#00000019" />
+                    <Text bold mx="22px">
+                      Or
+                    </Text>
+                    <Divider w="34%" bg="#00000019" />
+                  </Flex>
+                  <Button
+                    variant="outline"
+                    mt="12px"
+                    onPress={openCamera}
+                    w="full">
+                    <Flex direction="row" alignItems="center">
+                      <MaterialCommunityIcons
+                        name="camera-plus"
+                        size={30}
+                        color={colors.primary[500]}
+                      />
+                      <Text color="primary.500" ml="12px">
+                        Take A Photo
+                      </Text>
+                    </Flex>
+                  </Button>
+                </Box>
+              </Flex>
+            </>
           ) : (
-            <Flex {...styles.notFound}>
-              <MaterialCommunityIcons
-                name="file-search"
-                size={30}
-                color={colors.gray[300]}
-              />
-              <Text color="#00000073" mt="8px" fontSize={12}>
-                Data not found
-              </Text>
-            </Flex>
+            ''
           )}
         </Box>
+        {isHasAttachments() ? (
+          <Box bg="white" p="12px" mt="12px" minH="100px">
+            <Text bold>File to be uploaded:</Text>
+            {files.length ? (
+              files.map((item, index) => {
+                return (
+                  <Flex {...styles.fileUploaded} key={index}>
+                    <Box
+                      style={{
+                        elevation: 4,
+                        shadowColor: 'black',
+                      }}
+                      mr="12px">
+                      <Image
+                        source={{uri: item.uri}}
+                        alt={item.fileName}
+                        w="50px"
+                        h="55px"
+                      />
+                    </Box>
+                    <Box justifyContent="center" flex={1}>
+                      <Text bold>{compact(item.fileName)}</Text>
+                      <Text color="#0EC37D" fontSize="12px">
+                        Ready for request{' '}
+                        <MaterialCommunityIcons
+                          name="check-circle"
+                          size={20}
+                          color={'#0EC37D'}
+                        />
+                      </Text>
+                    </Box>
+
+                    <TouchableOpacity onPress={() => remove(index)}>
+                      <Box {...styles.removeButton}>
+                        <MaterialCommunityIcons
+                          name="close"
+                          size={20}
+                          color={'black'}
+                        />
+                      </Box>
+                    </TouchableOpacity>
+                  </Flex>
+                );
+              })
+            ) : (
+              <Flex {...styles.notFound}>
+                <MaterialCommunityIcons
+                  name="file-search"
+                  size={30}
+                  color={colors.gray[300]}
+                />
+                <Text color="#00000073" mt="8px" fontSize={12}>
+                  Data not found
+                </Text>
+              </Flex>
+            )}
+          </Box>
+        ) : null}
         <Box p="12px" mt="20px">
           <Button
             {...styles.buttonVerify}
@@ -227,7 +322,23 @@ export default function CreateDocument(props) {
           </Button>
         </Box>
       </ScrollView>
-      <ConfirmSheet isOpen={isOpen} onClose={onClose} onOk={onOk} />
+      <ConfirmSheet
+        isOpen={isOpen}
+        onClose={_onClose}
+        onOk={onOk}
+        withPassword={true}
+        onPasswordChange={onPasswordChange}
+        isRequesting={isRequesting}
+        error={error}
+        okStyle={{
+          isDisabled: isRequesting || !password,
+          isLoading: isRequesting,
+          isLoadingText: 'Confirm',
+        }}
+        cancelStyle={{
+          isDisabled: isRequesting,
+        }}
+      />
     </Box>
   );
 }

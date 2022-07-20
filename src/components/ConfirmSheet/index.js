@@ -1,5 +1,15 @@
 import React from 'react';
-import {Box, Flex, Text, Actionsheet, useTheme, Button} from 'native-base';
+import {
+  Box,
+  Flex,
+  Text,
+  Actionsheet,
+  useTheme,
+  Button,
+  ScrollView,
+  FormControl,
+  Input,
+} from 'native-base';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './styles/index.js';
 export default function ConfirmSheet({
@@ -13,6 +23,11 @@ export default function ConfirmSheet({
   okLabel,
   cancelStyle = {},
   okStyle = {},
+  withPassword = false,
+  onPasswordChange = () => {},
+  error = '',
+  isRequesting = false,
+  value,
 }) {
   const {colors} = useTheme();
   return (
@@ -36,6 +51,27 @@ export default function ConfirmSheet({
           </Text>
         ) : (
           description && description()
+        )}
+        {withPassword ? (
+          <Box width="full">
+            <Text bold mt="12px" mb="12px">
+              Password
+            </Text>
+            <ScrollView maxHeight="150px">
+              <FormControl w="full" isInvalid={Boolean(error)}>
+                <Input
+                  onChangeText={onPasswordChange}
+                  placeholder="Enter your password"
+                  type="password"
+                  w="full"
+                  isDisabled={isRequesting}
+                />
+                <FormControl.ErrorMessage>{error}</FormControl.ErrorMessage>
+              </FormControl>
+            </ScrollView>
+          </Box>
+        ) : (
+          ''
         )}
         <Flex {...styles.footer}>
           <Button

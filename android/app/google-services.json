@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "364254358763",
+    "project_id": "default-demo-app-9fa9",
+    "storage_bucket": "default-demo-app-9fa9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364254358763:android:55e1f47e818d1d4af022ae",
+        "android_client_info": {
+          "package_name": "com.fairsupplychain"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "364254358763-d7vp1p1dfc11lnrjk4feghi6kr6f22t9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaiKHDjd-YK1QZk-C5isyTt77Dgc6V14M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "364254358763-d7vp1p1dfc11lnrjk4feghi6kr6f22t9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

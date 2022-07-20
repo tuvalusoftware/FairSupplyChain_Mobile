@@ -4,9 +4,9 @@
  * @author NNTruong / nhuttruong6496@gmail.com
  */
 import {createSlice} from '@reduxjs/toolkit';
-import MockData from '../actions/MockData';
+// import MockData from '../actions/MockData';
 const initialModel = {
-  data: MockData.documents,
+  data: [],
   isFetching: false,
   isFetched: false,
 };
@@ -16,19 +16,20 @@ export const Slice = createSlice({
   initialState: initialModel,
   reducers: {
     fetchDocuments(state, action) {
-      state.data = action.data;
+      console.log('fetchDocuments', action.payload.data.length);
+      state.data = action.payload.data;
       return state;
     },
     setFetchingDocuments(state, action) {
-      state.isFetching = action.status;
+      state.isFetching = action.payload.status;
       return state;
     },
     setFetchedDocuments(state, action) {
-      state.isFetched = action.status;
+      state.isFetched = action.payload.status;
       return state;
     },
     addDocument(state, action) {
-      state.data.push(action.document);
+      state.data.push(action.payload.document);
       return state;
     },
     reset() {

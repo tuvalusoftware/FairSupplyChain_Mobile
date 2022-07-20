@@ -1,6 +1,14 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
-import {Box, Text, ScrollView, Flex, useTheme, Select} from 'native-base';
+import {
+  Box,
+  Text,
+  ScrollView,
+  Flex,
+  useTheme,
+  Select,
+  Spinner,
+} from 'native-base';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import DocumentItem from '../DocumentItem';
 import ButtonLink from '../ButtonLink';
@@ -12,12 +20,13 @@ export default function ListDocument(props) {
   let navigation = props.navigation;
   const Newest = (a, b) => a.createAt - b.createAt;
   const Oldest = (a, b) => b.createAt - a.createAt;
-  const {title, hideSort, renderItem} = props;
+  const {title, hideSort, renderItem, isFetching} = props;
   useEffect(() => {
     let _document = JSON.parse(JSON.stringify(props.documents));
-    let newData = _document.sort(sort === 'newest' ? Newest : Oldest);
-    setData(newData);
+    // let newData = _document.sort(sort === 'newest' ? Newest : Oldest);
+    setData(_document);
   }, [props.documents, sort]);
+  console.log(data.length);
   return (
     <Box flex={1}>
       {props.hideTitle ? (
@@ -30,7 +39,8 @@ export default function ListDocument(props) {
           <ButtonLink
             text="See all"
             icon="open-in-new"
-            onPress={() => navigation.navigate('Documents')}
+            isDisabled={isFetching}
+            onPress={() => (isFetching ? '' : navigation.navigate('Documents'))}
           />
         </Flex>
       )}
@@ -60,47 +70,53 @@ export default function ListDocument(props) {
       ) : (
         ''
       )}
-      <ScrollView flex={1} _contentContainerStyle={_contentContainerStyle}>
-        {data.length ? (
-          data.map((item, index) =>
-            renderItem ? (
-              renderItem(item, index)
-            ) : (
-              <DocumentItem
-                key={index}
-                document={item}
-                navigation={props.navigation}
-              />
-            ),
-          )
-        ) : (
-          <Flex
-            flex={1}
-            alignItems="center"
-            justifyContent="center"
-            direction="column"
-            style={{
-              shadowColor: 'black',
-              shadowOffset: {
-                width: 0,
-                height: 1,
-              },
-              shadowOpacity: 0.2,
-              shadowRadius: 1.41,
+      {isFetching ? (
+        <Flex height="full" alignItems="center" justifyContent="center">
+          <Spinner color="cyan.500" size="lg" />
+        </Flex>
+      ) : (
+        <ScrollView flex={1} _contentContainerStyle={_contentContainerStyle}>
+          {data.length ? (
+            data.map((item, index) =>
+              renderItem ? (
+                renderItem(item, index)
+              ) : (
+                <DocumentItem
+                  key={index}
+                  document={item}
+                  navigation={props.navigation}
+                />
+              ),
+            )
+          ) : (
+            <Flex
+              flex={1}
+              alignItems="center"
+              justifyContent="center"
+              direction="column"
+              style={{
+                shadowColor: 'black',
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 1.41,
 
-              elevation: 2,
-            }}>
-            <MaterialCommunityIcons
-              name="file-search"
-              size={40}
-              color={colors.primary[500]}
-            />
-            <Text color="#00000073" mt="8px" fontSize={12}>
-              No Document found
-            </Text>
-          </Flex>
-        )}
-      </ScrollView>
+                elevation: 2,
+              }}>
+              <MaterialCommunityIcons
+                name="file-search"
+                size={40}
+                color={colors.primary[500]}
+              />
+              <Text color="#00000073" mt="8px" fontSize={12}>
+                No Document found
+              </Text>
+            </Flex>
+          )}
+        </ScrollView>
+      )}
     </Box>
   );
 }

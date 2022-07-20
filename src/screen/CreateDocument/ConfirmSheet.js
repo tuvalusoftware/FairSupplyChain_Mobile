@@ -1,6 +1,6 @@
 import React from 'react';
 import ConfirmSheet from '../../components/ConfirmSheet';
-export default function ConfirmCreateSheet({isOpen, onClose, onOk}) {
+export default function ConfirmCreateSheet({isOpen, onClose, onOk, ...orther}) {
   return (
     <ConfirmSheet
       isOpen={isOpen}
@@ -10,6 +10,7 @@ export default function ConfirmCreateSheet({isOpen, onClose, onOk}) {
       description="Once confirmed the connected application can send your document for
       verification"
       icon="send-clock"
+      {...orther}
     />
   );
 }

@@ -3,8 +3,6 @@ import ListDocument from '../../components/ListDocument';
 import {Box, Flex, Text, useTheme} from 'native-base';
 import Constants from '../../util/Constants';
 import {TouchableOpacity} from 'react-native';
-import document_1 from '../../images/document_1.png';
-import document_2 from '../../images/document_2.png';
 import {Dimensions} from 'react-native';
 import {Animated} from 'react-native';
 import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
@@ -37,9 +35,10 @@ export default function Documents(props) {
 }
 
 const style = {flex: 1};
+const tabs = 2;
 function Tabs(props) {
   const windowWidth = Dimensions.get('window').width;
-  const Left = [0, windowWidth / 3, windowWidth - windowWidth / 3];
+  const Left = [0, windowWidth / tabs];
   const [animation] = useState(new Animated.Value(0));
   const {colors} = useTheme();
   const _setIndex = index => {
@@ -50,7 +49,7 @@ function Tabs(props) {
     }).start();
   };
   const animationStyle = {
-    width: windowWidth / 3,
+    width: windowWidth / tabs,
     bottom: 0,
     height: 2,
     backgroundColor: colors.primary[500],
