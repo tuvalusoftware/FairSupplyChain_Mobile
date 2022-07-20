@@ -1,0 +1,3 @@
+[submodule "src/libs/fuixlabs-documentor"]
+	path = src/libs/fuixlabs-documentor
+	url = https://github.com/HaoHuynh0301/fuixlabs-documentor.git
