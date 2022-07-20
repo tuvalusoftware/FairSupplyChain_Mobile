@@ -79,6 +79,8 @@ export default function Main(props) {
           //   Constants.STORAGE.access_token,
           //   res?.data?.access_token,
           // );
+        } else {
+          throw new Error('Login session expired, please login again');
         }
       } catch (err) {
         dispatchUser({
