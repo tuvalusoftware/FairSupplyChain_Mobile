@@ -24,10 +24,12 @@ export default function SwiperComponent() {
         return (
           <Center key={index} h="full" p="3">
             <Image source={item.img} alt="img" w="100%" h="300" />
-            <Text fontSize={21} bold textAlign="center" w="300">
+            <Text fontSize={21} bold textAlign="center" w="300" color="black">
               {item.title}
             </Text>
-            <Text textAlign="center">{item.description}</Text>
+            <Text textAlign="center" color="black">
+              {item.description}
+            </Text>
           </Center>
         );
       })}

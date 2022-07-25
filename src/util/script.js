@@ -17,7 +17,9 @@ import {
 // import {getDidDocument} from '../libs/fuixlabs-documentor/utils/document';
 import {_pullNFTs} from '../libs/fuixlabs-documentor/rest/client.rest';
 import {deepUnsalt} from '../libs/fuixlabs-documentor/utils/data';
+import {searchDocument} from '../libs/fuixlabs-documentor/rest/client.rest';
 import * as CardanoMessageSigning from '../libs/CardanoMessageSigning';
+import {CLIENT_PATH} from '../libs/fuixlabs-documentor/rest/client.path';
 import axios from 'axios';
 const _getTransactions = getTransactions;
 const STORAGE = Constants.STORAGE;
@@ -742,6 +744,7 @@ export const getTransitions = async () => {
   try {
     let address = await getAddress();
     let transition = await _getTransactions(address, _access_token);
+    console.log('transition', transition);
     let data = await getWrappedDocumentsContent(transition, _access_token);
     data = data?.map((item, index) => ({
       ...deepUnsalt(item),
@@ -751,7 +754,7 @@ export const getTransitions = async () => {
       // let didDoc = await getDidDocument(data[i].data.fileName, _access_token);
       let {policy} = data[i].mintingNFTConfig;
       let res = await _pullNFTs(
-        'resolver/nfts/',
+        CLIENT_PATH.PULL_NFTS,
         {policyId: policy?.id},
         _access_token,
       );
@@ -766,6 +769,49 @@ export const getTransitions = async () => {
     return data;
   } catch (err) {
     console.log(err);
+    throw new Error(err.message);
+  }
+};
+
+export const searchTransition = async (
+  searchString,
+  pageNumber,
+  access_token,
+) => {
+  try {
+    let res = await searchDocument(searchString, pageNumber, access_token);
+    let transactions = res.data.result;
+    if (!transactions || !transactions.length) {
+      return [];
+    }
+    // console.log('transition', transactions[0].data.fileName);
+    // let data = await getWrappedDocumentsContent(transactions, access_token);
+
+    let data = transactions?.map((item, index) => ({
+      ...deepUnsalt(item),
+      status: transactions[index]?.status,
+    }));
+    for (let i = 0; i < data.length; i++) {
+      let {policy} = data[i]?.mintingNFTConfig;
+      if (!policy) {
+        throw new Error('mintingNFTConfig empty');
+      }
+      let _res = await _pullNFTs(
+        CLIENT_PATH.PULL_NFTS,
+        {policyId: policy?.id},
+        access_token,
+      );
+
+      let history = _res.data.data.map((item, index) => {
+        return item?.onchainMetadata[policy.id][item.assetName]?.timestamp;
+      });
+      history.sort((a, b) => a - b);
+      data[i] = {...data[i], history};
+    }
+    data.sort((a, b) => b.history[0] - a.history[0]);
+    return data;
+  } catch (err) {
+    console.log('searchTransition', err.message);
     throw new Error(err.message);
   }
 };

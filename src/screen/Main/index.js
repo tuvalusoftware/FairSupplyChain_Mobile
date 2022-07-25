@@ -35,6 +35,11 @@ export default function Main(props) {
   useEffect(() => {
     initData();
   }, [props.route?.params?.mnemonic]);
+  useEffect(() => {
+    if (props.route?.params?.fetchNew) {
+      _getTransition();
+    }
+  }, [props.route?.params]);
   const initData = async () => {
     setInitData(true);
     let _mnemonic = props.route?.params?.mnemonic;
@@ -68,7 +73,6 @@ export default function Main(props) {
           dispatchUser({
             connectedAuthServer: true,
           });
-
           _getTransition();
           // await setStorage(
           //   Constants.STORAGE.access_token,

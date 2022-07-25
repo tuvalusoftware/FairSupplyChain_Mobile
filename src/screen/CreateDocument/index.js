@@ -24,6 +24,7 @@ import {createDocument} from '../../libs/fuixlabs-documentor';
 import {getStorage} from '../../util/Constants';
 import {signData, getAddress} from '../../util/script';
 import LoginSheet from '../../components/LoginSheet';
+import {getTransitions} from '../../util/script';
 const _contentContainerStyle = {flexGrow: 1};
 
 export default function CreateDocument(props) {
@@ -97,7 +98,7 @@ export default function CreateDocument(props) {
       console.log('wrappedDocument', wrappedDocument);
       onClose();
       setIsRequesting(false);
-      navigation.navigate('Main');
+      navigation.navigate('Main', {fetchNew: true});
     } catch (err) {
       console.log('Error', err);
       setError(err);
