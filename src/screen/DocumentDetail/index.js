@@ -1,83 +1,88 @@
-import React, {useState} from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, {useState, useEffect} from 'react';
 import {
   Box,
   Text,
   Flex,
-  Image,
-  Button,
-  useDisclose,
-  TextArea,
+  Skeleton,
+  // Image,
+  // Button,
+  // useDisclose,
+  // TextArea,
 } from 'native-base';
 import {TouchableOpacity, ScrollView} from 'react-native';
 import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import DocumentStatus from '../../components/DocumentStatus';
-import moment from 'moment';
 import styles from './styles';
-import Constants from '../../util/Constants';
-import ConfirmSheet from '../../components/ConfirmSheet';
-const _contentContainerStyle = {flexGrow: 1};
+import DocumentTemplate from '../../components/DocumentTemplate';
+import {compact} from '../../util/script';
+import {isCanTrade} from '../../util/Constants';
+import {useTheme} from 'native-base';
+import Constants, {getStorage} from '../../util/Constants';
+import moment from 'moment';
+import {getDidDocument} from '../../libs/fuixlabs-documentor/utils/document';
 
+const _contentContainerStyle = {flexGrow: 1, backgroundColor: '#607077'};
 export default function DocumentDetail(props) {
+  const {colors} = useTheme();
+  const [info, setInfo] = useState();
+  const [requesting, setRequesting] = useState(true);
   let id = props.route.params.id;
   let navigation = props.navigation;
-  const {isOpen, onClose, onOpen} = useDisclose();
-  const [dataForSheet, setData] = useState({});
-  const [message, setMassage] = useState('');
-  const {document, settings, user} = useShallowEqualSelector(state => ({
-    document: state.documents.data.find(item => item.id === id),
-    settings: state.settings,
-    user: state.user,
+  const {document} = useShallowEqualSelector(state => ({
+    document: state.documents.data.find(item => item.data.fileName === id),
   }));
-  const ready = () => {
-    let _dataForSheet = {
-      title: 'Are you sure to verify this document?',
-      description:
-        'If confirmed the application can send this document to public and finished the verification',
-      type: 'ready',
-      icon: 'send-clock',
-    };
-    setData(_dataForSheet);
-    onOpen();
-  };
-  return null;
-  console.log(message);
-  const reject = () => {
-    let _dataForSheet = {
-      title: 'Are you sure to reject this document?',
-      description: () => {
-        return (
-          <Box w="full" p="12px">
-            <Text mb="12px">Why was it rejected?</Text>
-            <TextArea
-              bg="#F5F5F5"
-              variant="filled"
-              placeholder="Message for user"
-              // value={message}
-              onChangeText={e => setMassage(e)}
-            />
-          </Box>
-        );
-      },
-      type: 'reject',
-      icon: 'send-clock',
-    };
-    setData(_dataForSheet);
-    onOpen();
-  };
-  const onOk = () => {
-    if (dataForSheet.type === 'ready') {
-      handleClose();
-      return console.log('accept');
+
+  const renderAsset = () => {
+    if (!isCanTrade(name)) {
+      return null;
     }
-    handleClose();
-    console.log('reject');
+    return (
+      <Box {...styles.box}>
+        <Text {...styles.title}>Assets</Text>
+        <Box
+          bg={colors.blue[500]}
+          w="130px"
+          alignItems="center"
+          justifyContent="center"
+          borderRadius="12px"
+          height="24px">
+          <Text bold color="white">
+            TRANSFERABLE
+          </Text>
+        </Box>
+      </Box>
+    );
   };
-  const handleClose = () => {
-    setData({});
-    onClose();
+  const {data, history} = document;
+  const {name, issuers, fileName} = data;
+  // const {policy} = mintingNFTConfig;
+  useEffect(() => {
+    getHistory();
+  }, []);
+
+  const getHistory = async () => {
+    setRequesting(true);
+    let access_token = await getStorage(Constants.STORAGE.access_token);
+    try {
+      let didDoc = await getDidDocument(fileName, access_token);
+      setInfo(didDoc.didDoc);
+      // let res = await _pullNFTs(
+      //   'resolver/nfts/',
+      //   {policyId: policy.id},
+      //   access_token,
+      // );
+
+      // let _history = res.data.data.map((item, index) => {
+      //   return item?.onchainMetadata[policy.id][item.assetName]?.timestamp;
+      // });
+      // _history.sort((a, b) => a - b);
+      // setHistory(_history);
+    } catch (err) {
+      console.log('getHistory', err);
+    }
+    setRequesting(false);
   };
-  const {image, title, verifiedAt, verifiedBy, status, type} = document;
   return (
     <Box {...styles.container}>
       <Flex {...styles.header}>
@@ -88,65 +93,58 @@ export default function DocumentDetail(props) {
           <MaterialCommunityIcons name="chevron-left" size={30} color="black" />
         </TouchableOpacity>
         <Text bold fontSize={18} ml="8px">
-          {title}
+          {name}
         </Text>
       </Flex>
-      <ScrollView flex={1} _contentContainerStyle={_contentContainerStyle}>
-        <Box {...styles.image}>
-          <Image source={image} alt={document.title} />
-        </Box>
-        <Flex px="12px" mt="8px">
-          <Text bold> {title}</Text>
-          <DocumentStatus status={status} mt="-4px" />
-        </Flex>
-        <Box {...styles.box}>
-          <Text color="#00000073" fontSize={12}>
-            {' '}
-            Verified at {moment(verifiedAt).format(' DD MMM YYYY')}
+      <Box flex={1} bg="#607077" p="12px">
+        <ScrollView flex={1} _contentContainerStyle={_contentContainerStyle}>
+          <DocumentTemplate document={document} />
+
+          <Text color="white" mt="22px" fontSize="20px" bold>
+            Certificate Details
           </Text>
-          <Text bold>By {verifiedBy}</Text>
-        </Box>
-        {settings?.document?.typeDocument[type]?.map((item, index) => {
-          return (
-            <Box {...styles.box} key={index}>
-              <Text color="#00000073" fontSize={12}>
-                {item.title}
-              </Text>
-              <Text bold>{document[item.key]}</Text>
+          <Box {...styles.box}>
+            <Text {...styles.title}>Issued by</Text>
+            <Text bold>{compact(issuers[0]?.address, 20)}</Text>
+          </Box>
+          {renderAsset()}
+          {requesting && !info ? (
+            <Skeleton borderRadius="8px" mt="16px" h="75px" />
+          ) : (
+            <Box {...styles.box}>
+              <Text {...styles.title}>Owner</Text>
+              <Text bold>{compact(info?.owner, 20, 'end')}</Text>
             </Box>
-          );
-        })}
-      </ScrollView>
-      {Constants.isManager(user.role) ? (
-        <Flex
-          direction="row"
-          w="full"
-          bg="white"
-          h="88px"
-          p="12px"
-          justifyContent="space-between">
-          <Button
-            w="47%"
-            h="50px"
-            colorScheme="error"
-            variant="outline"
-            onPress={reject}>
-            Reject
-          </Button>
-          <Button w="47%" h="50px" onPress={ready}>
-            Ready For Public
-          </Button>
-        </Flex>
-      ) : (
-        ''
-      )}
-      <ConfirmSheet
-        {...dataForSheet}
-        isOpen={isOpen}
-        onClose={handleClose}
-        onOk={onOk}>
-        {dataForSheet.type === 'reject' ? 'x' : ''}
-      </ConfirmSheet>
+          )}
+          {requesting && !info ? (
+            <Skeleton borderRadius="8px" mt="16px" h="75px" />
+          ) : (
+            <Box {...styles.box}>
+              <Text {...styles.title}>Holder</Text>
+              <Text bold>{compact(info?.holder, 20, 'end')}</Text>
+            </Box>
+          )}
+
+          <Text color="white" mt="22px" fontSize="20px" bold>
+            History
+          </Text>
+          {requesting && !history.length ? (
+            <Skeleton borderRadius="8px" mt="16px" h="75px" />
+          ) : null}
+          {history.map((item, index) => {
+            return (
+              <Box {...styles.box} key={index}>
+                <Text {...styles.title}>
+                  {index === 0
+                    ? 'Document has been issued'
+                    : 'Document has been updated'}
+                </Text>
+                <Text bold>{moment(item).format('DD MMMM YYYY, hh:mm A')}</Text>
+              </Box>
+            );
+          })}
+        </ScrollView>
+      </Box>
     </Box>
   );
 }

@@ -88,7 +88,7 @@ export default function ConfirmSheet({
             mw="300px"
             h="50px"
             colorScheme="primary"
-            onPress={onOk}
+            onPress={() => onOk()}
             {...okStyle}>
             {okLabel || 'Confirm'}
           </Button>

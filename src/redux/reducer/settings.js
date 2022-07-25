@@ -18,7 +18,7 @@ export const Slice = createSlice({
     },
     reset() {
       return {
-        document: [],
+        document: MockData.settings.document,
       };
     },
   },

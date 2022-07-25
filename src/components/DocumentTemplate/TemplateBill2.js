@@ -4,15 +4,20 @@
  * @author  NNTruong / nhuttruong6496@gmail.com
  */
 import React from 'react';
-import {Box, Text, HStack, VStack} from 'native-base';
+import {Box, Text, Image, HStack, VStack} from 'native-base';
 import logo from '../../images/nlogo.png';
+import signImage from '../../images/signImage.png';
 
 function Row({children, ...orther}) {
-  return <HStack {...orther}>{children}</HStack>;
+  return (
+    <HStack {...orther} borderBottomColor="#00000052" borderBottomWidth="1px">
+      {children}
+    </HStack>
+  );
 }
 function Col({children, ...orther}) {
   return (
-    <VStack {...orther}>
+    <VStack {...orther} borderRightColor="#00000052" borderRightWidth="1px">
       <Text p="2px" textAlign="center">
         {' '}
         {children}
@@ -22,19 +27,28 @@ function Col({children, ...orther}) {
 }
 export default function Index(props) {
   const {data} = props.document;
-  let {name} = data;
+  // let {name} = data;
   return (
-    <Box>
-      <Text>Certificate of Analysis (COA)</Text>
-      <Text>Issued in: GHANA</Text>
-      <Text>Certificate No: 111</Text>
-      <Text>Farmer's name, address and country:</Text>
+    <Box w="full" bg="white" p="12px">
+      <Image source={logo} w="full" h="50px" alt="tmp" />
+      <Text textAlign="center" bold fontSize="18px">
+        Certificate of Analysis (COA)
+      </Text>
+      <Text textAlign="center">Issued in: GHANA</Text>
+      <Text textAlign="center" mb="22px">
+        Certificate No: 111
+      </Text>
+      <Text bold mb="12px">
+        Farmer's name, address and country:
+      </Text>
       <Text>{data.nameAddressCountry.farmerName}</Text>
       <Text>{data.nameAddressCountry.address}</Text>
       <Text>{data.nameAddressCountry.countryName}</Text>
       <Text>{data.nameAddressCountry.zipCode}</Text>
-      <Text>Analysis Results</Text>
-      <Box>
+      <Text bold mt="12px" mb="12px">
+        Analysis Results
+      </Text>
+      <Box borderWidth="1px" borderColor="#00000052">
         <Row>
           <Col width="40%">Item</Col>
           <Col width="30%">Standard</Col>
@@ -43,22 +57,22 @@ export default function Index(props) {
         <Row width="full">
           <Col width="40%">CuSO4.5H2O</Col>
           <Col width="30%">98% min</Col>
-          <Col width="30%">{data.analysisResults.cuSO4}%</Col>
+          <Col width="30%">{data.analysisResults.CuSO45H2O}%</Col>
         </Row>
         <Row width="full">
           <Col width="40%">Cu</Col>
           <Col width="30%">25% min</Col>
-          <Col width="30%">{data.analysisResults.cu}%</Col>
+          <Col width="30%">{data.analysisResults.Cu}%</Col>
         </Row>
         <Row width="full">
           <Col width="40%">Pb</Col>
           <Col width="30%">10 ppm max</Col>
-          <Col width="30%">{data.analysisResults.pb}ppm</Col>
+          <Col width="30%">{data.analysisResults.Pb}ppm</Col>
         </Row>
         <Row width="full">
           <Col width="40%">As</Col>
           <Col width="30%">4ppm max</Col>
-          <Col width="30%">{data.analysisResults.as}ppm</Col>
+          <Col width="30%">{data.analysisResults.As}ppm</Col>
         </Row>
         <Row width="full">
           <Col width="40%">Water insoluble Matter</Col>
@@ -66,6 +80,7 @@ export default function Index(props) {
           <Col width="30%">{data.analysisResults.water}%</Col>
         </Row>
       </Box>
+      <Image source={signImage} alt="sign" h="120px" w="full" mt="22px" />
     </Box>
   );
 }

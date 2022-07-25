@@ -17,6 +17,7 @@ import {
   // fetchPrice,
   getBalance,
 } from '../../util/script';
+import Constants, {setStorage} from '../../util/Constants';
 const Row = ({data}) => {
   const {colors} = useTheme();
 
@@ -42,6 +43,7 @@ const Row = ({data}) => {
   );
 };
 const copyToClipboard = text => {
+  console.log(text);
   Clipboard.setString(text);
 };
 const ButtonCopy = ({text}) => {
@@ -156,10 +158,18 @@ export default function Index(props) {
         compact(user.userInfo.paymentAddr, 35),
         `${asset?.amount || 0} ${asset?.unitName}`,
       ],
-      button: () => <ButtonCopy text={user.userInfo.paymentAddr} />,
+      button: () => {
+        return <ButtonCopy text={user.userInfo.paymentAddr} />;
+      },
     },
   ];
   const onChangeNetwork = () => {
+    dispatch(
+      userSliceActions.setData({
+        connectedAuthServer: false,
+      }),
+    );
+    setStorage(Constants.STORAGE.access_token, '');
     setOpenLogin(true);
   };
   return (

@@ -9,24 +9,34 @@ import {
   Select,
   Spinner,
 } from 'native-base';
+import {RefreshControl} from 'react-native';
+
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import DocumentItem from '../DocumentItem';
 import ButtonLink from '../ButtonLink';
 const _contentContainerStyle = {flexGrow: 1};
+
 export default function ListDocument(props) {
   const {colors} = useTheme();
   const [data, setData] = useState(props.documents);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const _onRefresh = async () => {
+    setRefreshing(true);
+    if (onRefresh) {
+      await onRefresh();
+    }
+    setRefreshing(false);
+  };
   let [sort, setSort] = useState('newest');
   let navigation = props.navigation;
-  const Newest = (a, b) => a.createAt - b.createAt;
-  const Oldest = (a, b) => b.createAt - a.createAt;
-  const {title, hideSort, renderItem, isFetching} = props;
+  const Newest = (a, b) => b.history[0] - a.history[0];
+  const Oldest = (a, b) => a.history[0] - b.history[0];
+  const {title, hideSort, renderItem, isFetching, onRefresh} = props;
   useEffect(() => {
     let _document = JSON.parse(JSON.stringify(props.documents));
-    // let newData = _document.sort(sort === 'newest' ? Newest : Oldest);
-    setData(_document);
+    let newData = _document.sort(sort === 'newest' ? Newest : Oldest);
+    setData(newData);
   }, [props.documents, sort]);
-  console.log(data.length);
   return (
     <Box flex={1}>
       {props.hideTitle ? (
@@ -75,7 +85,12 @@ export default function ListDocument(props) {
           <Spinner color="cyan.500" size="lg" />
         </Flex>
       ) : (
-        <ScrollView flex={1} _contentContainerStyle={_contentContainerStyle}>
+        <ScrollView
+          flex={1}
+          _contentContainerStyle={_contentContainerStyle}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={_onRefresh} />
+          }>
           {data.length ? (
             data.map((item, index) =>
               renderItem ? (

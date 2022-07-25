@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {VALID_DOCUMENT_NAME_TYPE} from '../libs/fuixlabs-documentor/constants/type';
 export const NODE = {
   mainnet: 'https://cardano-mainnet.blockfrost.io/api/v0',
   testnet: 'https://cardano-testnet.blockfrost.io/api/v0',
@@ -10,6 +11,8 @@ export const NETWORK_ID = {
 };
 export const getStorage = key => AsyncStorage.getItem(key);
 export const setStorage = (key, value) => AsyncStorage.setItem(key, value);
+export const isCanTrade = name =>
+  VALID_DOCUMENT_NAME_TYPE.find(item => item.name === name)?.type === 'trade';
 export const clearStorage = async () => {
   await AsyncStorage.clear();
 };

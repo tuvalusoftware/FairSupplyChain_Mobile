@@ -20,14 +20,14 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import ConfirmSheet from './ConfirmSheet';
 import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
 import styles from './styles';
-import {
-  createDocument,
-  verifyCardanoDocument,
-} from '../../libs/fuixlabs-documentor';
+import {createDocument} from '../../libs/fuixlabs-documentor';
+import {getStorage} from '../../util/Constants';
 import {signData, getAddress} from '../../util/script';
+import LoginSheet from '../../components/LoginSheet';
 const _contentContainerStyle = {flexGrow: 1};
 
 export default function CreateDocument(props) {
+  const navigation = props.navigation;
   const [type, setType] = useState('');
   const [issuer, setIssuer] = useState(Constants.LIST_ISSUER[0]);
   const [files, setFiles] = useState([]);
@@ -40,7 +40,8 @@ export default function CreateDocument(props) {
     settings: state.settings,
     user: state.user,
   }));
-
+  const connectedAuthServer = user.connectedAuthServer;
+  const [openLogin, setOpenLogin] = useState(false);
   const {colors} = useTheme();
   const openCamera = async () => {
     try {
@@ -77,24 +78,28 @@ export default function CreateDocument(props) {
   const disabled = () => {
     return !(type && issuer);
   };
-  console.log(user.userInfo);
-  const onOk = async () => {
+  const onOk = async (_passwork = password) => {
+    console.log(_passwork);
     setIsRequesting(true);
     let address = await getAddress();
+    let _access_token = await getStorage(Constants.STORAGE.access_token);
     try {
       const {wrappedDocument} = await createDocument(
+        '',
         [data],
         address,
         false,
         {},
         async (_address, payload) =>
-          await signData(_address, payload, password, 0),
+          await signData(_address, payload, _passwork, 0),
+        _access_token,
       );
       console.log('wrappedDocument', wrappedDocument);
       onClose();
       setIsRequesting(false);
+      navigation.navigate('Main');
     } catch (err) {
-      console.log(err);
+      console.log('Error', err);
       setError(err);
       setIsRequesting(false);
     }
@@ -105,6 +110,7 @@ export default function CreateDocument(props) {
     }
     onClose();
     setError('');
+    setPassword('');
   };
   const onPasswordChange = e => {
     setPassword(e);
@@ -124,8 +130,11 @@ export default function CreateDocument(props) {
 
   const isHasAttachments = () => {
     return (
-      settings.document.typeDocument[type]?.forms &&
-      settings.document.typeDocument[type]?.forms[0].attachments
+      settings &&
+      settings.document &&
+      settings.document?.typeDocument[type] &&
+      settings.document?.typeDocument[type]?.forms &&
+      settings.document?.typeDocument[type]?.forms[0].attachments
     );
   };
   const renderForm = (form, parentKey) => {
@@ -162,7 +171,9 @@ export default function CreateDocument(props) {
       );
     });
   };
-  console.log('data', data);
+  if (!settings || !settings.document || !settings.document.typeDocument) {
+    return null;
+  }
   return (
     <Box h="full" mt="12px" pb="22px">
       <ScrollView flex={1} _contentContainerStyle={_contentContainerStyle}>
@@ -179,11 +190,9 @@ export default function CreateDocument(props) {
               value={type}
               onChange={e => {
                 setType(e);
-                console.log(
-                  'settings.document.typeDocument[e]?.forms[0]?.data',
-                  settings.document.typeDocument[e]?.forms[0]?.data,
-                );
-                setData({...settings.document.typeDocument[e]?.forms[0]?.data});
+                setData({
+                  ...settings.document?.typeDocument[e]?.forms[0]?.data,
+                });
               }}
               items={Object.keys(settings.document?.typeDocument)}
               placeholder="Select type"
@@ -317,7 +326,9 @@ export default function CreateDocument(props) {
           <Button
             {...styles.buttonVerify}
             isDisabled={disabled()}
-            onPress={onOpen}>
+            onPress={() =>
+              connectedAuthServer ? onOpen(true) : setOpenLogin(true)
+            }>
             Request to verify
           </Button>
         </Box>
@@ -338,6 +349,12 @@ export default function CreateDocument(props) {
         cancelStyle={{
           isDisabled: isRequesting,
         }}
+      />
+      <LoginSheet
+        openLogin={openLogin}
+        setOpenLogin={setOpenLogin}
+        onLogin={onOk}
+        hideChangeNetwork
       />
     </Box>
   );

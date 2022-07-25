@@ -13,16 +13,12 @@ import Constants, {setStorage} from '../../util/Constants';
 import Documents from '../Documents';
 import ModalSeed from './ModalSeed';
 import LoginSheet from '../../components/LoginSheet';
-import {verifyAccessToken, getAddress} from '../../util/script';
+import {verifyAccessToken, getAddress, getTransitions} from '../../util/script';
 import {useDispatch} from 'react-redux';
 import {userSliceActions} from '../../redux/reducer/user';
 import {getStorage} from '../../util/Constants';
 import {documentsSliceActions} from '../../redux/reducer/documents';
 import Gallery from '../Gallery';
-import {
-  getTransactions,
-  getWrappedDocumentsContent,
-} from '../../libs/fuixlabs-documentor';
 const Tab = createBottomTabNavigator();
 export default function Main(props) {
   const [open, setOpen] = useState(false);
@@ -66,7 +62,6 @@ export default function Main(props) {
       //call verify api
       let res;
       try {
-        console.log('_access_token', _access_token);
         res = await verifyAccessToken(_access_token);
         console.log('checkConnected', res?.data);
         if (!res.data?.error_code) {
@@ -99,9 +94,7 @@ export default function Main(props) {
   const _getTransition = async () => {
     dispatch(documentsSliceActions.setFetchingDocuments({status: true}));
     try {
-      let address = await getAddress();
-      let transition = await getTransactions(address);
-      let data = await getWrappedDocumentsContent(transition);
+      let data = await getTransitions();
       dispatch(documentsSliceActions.fetchDocuments({data}));
     } catch (err) {
       console.log(err);

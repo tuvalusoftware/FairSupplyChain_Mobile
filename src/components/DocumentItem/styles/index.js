@@ -1,11 +1,12 @@
 const styles = {
   container: {
-    h: '375px',
+    h: '400px',
     w: 'full',
     bgColor: 'rgba(233, 236, 237, 1)',
-    p: '8px',
+    py: '22px',
     borderRadius: '8px',
-    mb: '20px',
+    mb: '30px',
+    pt: '22px',
     // paddingRight: '100px',
   },
   containerImage: {

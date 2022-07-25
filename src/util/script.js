@@ -10,12 +10,35 @@ import Constants, {getStorage, NODE, setStorage, NETWORK_ID} from './Constants';
 import crypto from 'crypto';
 import provider from '../util/provider';
 import {mnemonicToEntropy} from 'react-native-bip39';
+import {
+  getTransactions,
+  getWrappedDocumentsContent,
+} from '../libs/fuixlabs-documentor';
+// import {getDidDocument} from '../libs/fuixlabs-documentor/utils/document';
+import {_pullNFTs} from '../libs/fuixlabs-documentor/rest/client.rest';
+import {deepUnsalt} from '../libs/fuixlabs-documentor/utils/data';
 import * as CardanoMessageSigning from '../libs/CardanoMessageSigning';
 import axios from 'axios';
+const _getTransactions = getTransactions;
 const STORAGE = Constants.STORAGE;
 function cryptoRandomString({length}) {
   return crypto.randomBytes(length).toString('hex');
 }
+
+export const compact = (string = '', lg = 20, position) => {
+  if (position === 'end') {
+    return string.substr(0, lg) + '...';
+  }
+  if (string?.length > lg) {
+    return (
+      string.substring(0, lg / 2) +
+      '...' +
+      string.substring(string.length - lg / 2, string.length)
+    );
+  }
+
+  return string;
+};
 
 export const encryptWithPassword = async (password, rootKeyBytes) => {
   const rootKeyHex = Buffer.from(rootKeyBytes, 'hex').toString('hex');
@@ -220,6 +243,10 @@ export const requestAccountKey = async (password, accountIndex) => {
   let accountKey = {};
   try {
     let decryptedHex = await decryptWithPassword(password, encryptedRootKey);
+    console.log('decryptedHex', decryptedHex);
+    if (!decryptedHex) {
+      throw new Error('Incorrect Password');
+    }
     accountKey = await HaskellShelley.Bip32PrivateKey.from_bytes(
       Buffer.from(decryptedHex, 'hex'),
     );
@@ -228,6 +255,7 @@ export const requestAccountKey = async (password, accountIndex) => {
     accountKey = await accountKey.derive(harden(parseInt(accountIndex, 10)));
   } catch (e) {
     console.log('requestAccountKey error', e);
+    throw new Error(e.message);
   }
   let paymentKey = await accountKey.derive(0);
   paymentKey = await paymentKey.derive(0);
@@ -565,7 +593,7 @@ export const signData = async (
 
     return Buffer.from(await coseSign1.to_bytes(), 'hex').toString('hex');
   } catch (err) {
-    throw Error('Incorrect Password ');
+    throw Error(err.message);
   }
 };
 
@@ -707,4 +735,37 @@ const isValidAddressBytes = async address => {
     console.log('isValidAddressBytes 2', e);
   }
   return false;
+};
+
+export const getTransitions = async () => {
+  let _access_token = await getStorage(Constants.STORAGE.access_token);
+  try {
+    let address = await getAddress();
+    let transition = await _getTransactions(address, _access_token);
+    let data = await getWrappedDocumentsContent(transition, _access_token);
+    data = data?.map((item, index) => ({
+      ...deepUnsalt(item),
+      status: transition[index]?.status,
+    }));
+    for (let i = 0; i < data.length; i++) {
+      // let didDoc = await getDidDocument(data[i].data.fileName, _access_token);
+      let {policy} = data[i].mintingNFTConfig;
+      let res = await _pullNFTs(
+        'resolver/nfts/',
+        {policyId: policy?.id},
+        _access_token,
+      );
+
+      let history = res.data.data.map((item, index) => {
+        return item?.onchainMetadata[policy.id][item.assetName]?.timestamp;
+      });
+      history.sort((a, b) => a - b);
+      data[i] = {...data[i], history};
+    }
+    data.sort((a, b) => b.history[0] - a.history[0]);
+    return data;
+  } catch (err) {
+    console.log(err);
+    throw new Error(err.message);
+  }
 };

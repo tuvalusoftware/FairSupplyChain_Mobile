@@ -17,6 +17,7 @@ export default function LoginSheet({
   openLogin,
   hideChangeNetwork,
   setOpenLogin,
+  onLogin,
 }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -47,25 +48,23 @@ export default function LoginSheet({
     setIsRequesting(true);
     try {
       let {dataRandomNumber, access_token} = await _getRandomNumber();
-      console.log('LULU1', access_token);
       let address = await getAddress();
       let payload = Buffer.from(
         JSON.stringify(dataRandomNumber),
         'utf8',
       ).toString('hex');
 
-      let _signData = await signData(address, payload, password, 0);
+      let signature = await signData(address, payload, password, 0);
       let res = await loginAuthServer(
         {
           address,
           randomNumber: dataRandomNumber.randomNumber,
           timestamp: dataRandomNumber.timestamp,
-          signedData: _signData,
+          signedData: signature,
           rememberMe: true,
         },
         access_token,
       );
-      console.log('LULU', res.data?.data?.access_token);
       if (!res.data?.error_code) {
         await setStorage(
           Constants.STORAGE.access_token,
@@ -83,6 +82,9 @@ export default function LoginSheet({
     }
     setIsRequesting(false);
     setOpenLogin(false);
+    if (onLogin) {
+      onLogin(password);
+    }
   };
   const onClose = () => {
     setError('');
@@ -102,7 +104,7 @@ export default function LoginSheet({
       }}
       okStyle={{
         borderRadius: '30px',
-        isDisabled: isRequesting,
+        isDisabled: isRequesting || !password,
         isLoading: isRequesting,
         isLoadingText: 'Login',
       }}

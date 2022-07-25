@@ -1,10 +1,6 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Box, Text, Flex, Image, useTheme} from 'native-base';
-import VerifiedDocs from './VerifiedDocs';
 import ListDocument from '../../../components/ListDocument';
-import verified from '../../../images/logo.png';
-import verifying from '../../../images/total_verifying.png';
 import AccountButton from '../../../components/AccountButton';
 import NotificationButton from '../../../components/NotificationButtons';
 import useShallowEqualSelector from '../../../redux/customHook/useShallowEqualSelector';
@@ -15,6 +11,9 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {TouchableOpacity} from 'react-native';
 import NotConnectServerForm from './NotConnectServerForm';
 import LoginSheet from '../../../components/LoginSheet';
+import {getTransitions} from '../../../util/script';
+import {useDispatch} from 'react-redux';
+import {documentsSliceActions} from '../../../redux/reducer/documents';
 export default function Home(props) {
   const [openLogin, setOpenLogin] = useState(false);
   const {user, documents, isFetching} = useShallowEqualSelector(state => ({
@@ -22,6 +21,7 @@ export default function Home(props) {
     user: state.user,
     isFetching: state.documents.isFetching,
   }));
+  const dispatch = useDispatch();
   const connectedAuthServer = user?.connectedAuthServer;
   // const [countVerify, setCount] = useState([0, 0, 0]);
   const {colors} = useTheme();
@@ -65,6 +65,10 @@ export default function Home(props) {
   //   });
   // }
 
+  const onRefresh = async () => {
+    let data = await getTransitions();
+    dispatch(documentsSliceActions.fetchDocuments({data}));
+  };
   const renderDocumentItem = (document, index) => {
     console.log(document);
     const {title, image, id, createAt} = document;
@@ -124,6 +128,7 @@ export default function Home(props) {
             }
             isManager={Constants.isManager(user.role)}
             isFetching={isFetching}
+            onRefresh={onRefresh}
           />
         ) : (
           <NotConnectServerForm setOpenLogin={setOpenLogin} />

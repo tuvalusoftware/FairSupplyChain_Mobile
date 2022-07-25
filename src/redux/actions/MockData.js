@@ -54,7 +54,7 @@ const MockData = {
     },
     {
       data: {
-        name: 'Bill of Lading',
+        name: 'Bill of Landing',
         title: 'Test Title By Caps2',
         remarks: 'Test Remarks By Caps',
         fileName: 'Certificate of Analysis (COA)',
@@ -135,7 +135,7 @@ const MockData = {
           forms: [
             {
               data: {
-                name: 'Bill of Lading',
+                name: 'Bill of Landing',
                 title: 'Test Title By Caps2',
                 remarks: 'Test Remarks By Caps',
                 fileName: 'Certificate of Analysis (COA)',

@@ -18,11 +18,14 @@ const styles = {
     p: '12px',
   },
   box: {
-    mx: '12px',
     mt: '16px',
     p: '12px',
     bg: 'white',
     borderRadius: '8px',
+  },
+  title: {
+    color: '#00000052',
+    mb: '8px',
   },
 };
 export default styles;

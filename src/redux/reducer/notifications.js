@@ -4,9 +4,9 @@
  * @author NNTruong / nhuttruong6496@gmail.com
  */
 import {createSlice} from '@reduxjs/toolkit';
-import MockData from '../actions/MockData';
+// import MockData from '../actions/MockData';
 const initialModel = {
-  data: MockData.notifications,
+  data: [],
 };
 
 export const Slice = createSlice({
