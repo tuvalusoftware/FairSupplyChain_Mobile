@@ -1,5 +1,6 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {Box, Center, Text, Image} from 'native-base';
+import {Center, Text, Image} from 'native-base';
 import Swiper from 'react-native-swiper';
 import step1 from '../../images/step1.png';
 import step2 from '../../images/step2.png';
@@ -19,7 +20,7 @@ const items = [
 ];
 export default function SwiperComponent() {
   return (
-    <Swiper showsPagination={true}>
+    <Swiper showsPagination={true} style={{backgroundColor: 'white'}}>
       {items.map((item, index) => {
         return (
           <Center key={index} h="full" p="3">

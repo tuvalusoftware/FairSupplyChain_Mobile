@@ -66,7 +66,8 @@ export default function Home(props) {
   // }
 
   const onRefresh = async () => {
-    let data = await getTransitions();
+    let data = [];
+    data = await getTransitions();
     dispatch(documentsSliceActions.fetchDocuments({data}));
   };
   const renderDocumentItem = (document, index) => {

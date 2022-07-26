@@ -6,7 +6,7 @@ export default function Index(props) {
     props.start();
   };
   return (
-    <Box h="full" pb="4" px="4">
+    <Box h="full" pb="4" px="4" bg="white">
       <Swiper />
       <Button colorScheme="primary" p="4" onPress={onPress}>
         Get Started

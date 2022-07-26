@@ -81,9 +81,9 @@ const Constants = {
   getStorage,
   setStorage,
   isManager: role => role === 3,
-  // authServer:
-  //   'https://enigmatic-sands-00024.herokuapp.com/18.139.84.180:12000/api/auth/',
-  authServer: 'http://18.139.84.180:12000/api/auth/',
+  authServer:
+    'https://enigmatic-sands-00024.herokuapp.com/18.139.84.180:12000/api/auth/',
+  // authServer: 'http://18.139.84.180:12000/api/auth/',
   // authServer: 'http://192.168.1.10:15000/api/auth/',
 };
 export default Constants;

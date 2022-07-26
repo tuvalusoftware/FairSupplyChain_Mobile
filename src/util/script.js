@@ -21,6 +21,7 @@ import {searchDocument} from '../libs/fuixlabs-documentor/rest/client.rest';
 import * as CardanoMessageSigning from '../libs/CardanoMessageSigning';
 import {CLIENT_PATH} from '../libs/fuixlabs-documentor/rest/client.path';
 import axios from 'axios';
+import {Alert} from 'react-native';
 const _getTransactions = getTransactions;
 const STORAGE = Constants.STORAGE;
 function cryptoRandomString({length}) {
@@ -517,7 +518,7 @@ export const getRandomNumber = async () => {
     result = await rawResult.json();
   } catch (err) {
     console.log('getRandomNumber error', err);
-    throw Error('Get Random Number faild' + err.message);
+    throw Error('Get Random Number faild ' + err.message);
   }
   if (!result) {
     throw Error('Get Random Number faild');
@@ -768,8 +769,21 @@ export const getTransitions = async () => {
     data.sort((a, b) => b.history[0] - a.history[0]);
     return data;
   } catch (err) {
-    console.log(err);
-    throw new Error(err.message);
+    console.log('getTransitions', err);
+    let message = err.message || err;
+    Alert.alert('Error', message, [
+      {
+        text: '',
+        onPress: () => console.log('Ask me later pressed'),
+      },
+      {
+        text: '',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'OK', onPress: () => console.log('OK Pressed')},
+    ]);
+    throw new Error(err.message || err);
   }
 };
 
@@ -812,6 +826,19 @@ export const searchTransition = async (
     return data;
   } catch (err) {
     console.log('searchTransition', err.message);
+    let message = err.message || err;
+    Alert.alert('Error', message, [
+      {
+        text: '',
+        onPress: () => console.log('Ask me later pressed'),
+      },
+      {
+        text: '',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'OK', onPress: () => console.log('OK Pressed')},
+    ]);
     throw new Error(err.message);
   }
 };

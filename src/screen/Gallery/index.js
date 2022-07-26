@@ -29,12 +29,16 @@ export default function Index(props) {
       return;
     }
     setFetching(true);
-    let access_token = await getStorage(Constants.STORAGE.access_token);
-    let data = await searchTransition(e, 1, access_token);
-    if (data) {
-      setDocuments(data);
+    try {
+      let access_token = await getStorage(Constants.STORAGE.access_token);
+      let data = await searchTransition(e, 1, access_token);
+      if (data) {
+        setDocuments(data);
+      }
+      setFetching(false);
+    } catch (err) {
+      setFetching(false);
     }
-    setFetching(false);
   };
   return (
     <>

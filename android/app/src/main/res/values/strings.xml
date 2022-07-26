@@ -2,4 +2,15 @@
     <string name="app_name">FuixlabsWallet</string>
     <string name="appCenterAnalytics_whenToEnableAnalytics" moduleConfig="true" translatable="false">ALWAYS_SEND</string>
     <string name="appCenterCrashes_whenToSendCrashes" moduleConfig="true" translatable="false">DO_NOT_ASK_JAVASCRIPT</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">WwffWcylVCXZhewJchJYnSCmaGxpuhzx0cWPe</string>
+    <string name="CodePushPublicKey">-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvYhn2VUcmkOQbryld5T+
+mReO7/x95ZXozsebxFSHmsH5bHKbHuXKavEK3utWQAVZDlDnvUttQ3Rqx2kfklXD
+qRJJlNJpDtaDgv1qx0hTG6QjtbFi+ySAIl2GfI0G3zZAvG7CtG7vSB0XFbr5Yzdu
+wTanFKAymRvc1ryJX/wh/wwBYA/hmyNXOdNvaz424Jv/zjceZFTINtjYuaq2Ng/K
+gcISPs+EL6jIB0Ja4z09AENOtalaJ8Z+6fpCZgXrZPaH/bcjssYyazu5/uUN6LT9
+j/UOpfnP2YNzwiNkzz4TnO/dd3WjBbJ1toxkdUYDStPSxVJf+cqTjdlCRW6VLtrr
+IwIDAQAB
+-----END PUBLIC KEY-----
+</string>
 </resources>

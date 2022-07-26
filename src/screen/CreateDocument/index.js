@@ -24,7 +24,6 @@ import {createDocument} from '../../libs/fuixlabs-documentor';
 import {getStorage} from '../../util/Constants';
 import {signData, getAddress} from '../../util/script';
 import LoginSheet from '../../components/LoginSheet';
-import {getTransitions} from '../../util/script';
 const _contentContainerStyle = {flexGrow: 1};
 
 export default function CreateDocument(props) {
@@ -63,7 +62,7 @@ export default function CreateDocument(props) {
     } catch (err) {}
   };
   const remove = index => {
-    let _files = files.filter((x, _index) => _index != index);
+    let _files = files.filter((x, _index) => _index !== index);
     setFiles(_files);
   };
   const compact = string => {

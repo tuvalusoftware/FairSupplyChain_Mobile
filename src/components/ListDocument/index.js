@@ -22,9 +22,11 @@ export default function ListDocument(props) {
   const [refreshing, setRefreshing] = React.useState(false);
   const _onRefresh = async () => {
     setRefreshing(true);
-    if (onRefresh) {
-      await onRefresh();
-    }
+    try {
+      if (onRefresh) {
+        await onRefresh();
+      }
+    } catch (err) {}
     setRefreshing(false);
   };
   let [sort, setSort] = useState('newest');
