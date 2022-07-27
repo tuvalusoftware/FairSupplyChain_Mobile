@@ -168,8 +168,7 @@ const App = () => {
               }}
             />
           ) : (
-            <Stack.Navigator
-              initialRouteName={isLogged ? 'RevokeDoc' : 'Welcome'}>
+            <Stack.Navigator initialRouteName={isLogged ? 'Main' : 'Welcome'}>
               {routes.map((item, index) => {
                 return <Stack.Screen {...item} key={index} />;
               })}
