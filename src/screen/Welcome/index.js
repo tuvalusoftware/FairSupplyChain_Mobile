@@ -1,21 +1,14 @@
 import React, {useState} from 'react';
 import styles from './styles';
 import {Button, Box, Center, Text, Image} from 'native-base';
-// import {Link} from '@react-navigation/native';
 import logo from '../../images/logo.png';
 import LoginPrivateKey from './LoginPrivatekey';
-// import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-// import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
 import {ScrollView, KeyboardAvoidingView} from 'react-native';
 import {createWallet, getCurrentAccount} from '../../util/script';
 import bip39 from 'react-native-bip39';
-// import * as HaskellShelley from '../../libs/HaskellShelley';
-// import * as CardanoMessageSigning from '../../libs/CardanoMessageSigning';
 import {useDispatch} from 'react-redux';
-import Constants, {getStorage} from '../../util/Constants';
 import AuthForm from './AuthForm';
 import {userSliceActions} from '../../redux/reducer/user';
-const STORAGE = Constants.STORAGE;
 
 export default function Welcome(props) {
   let navigation = props.navigation;
@@ -24,14 +17,11 @@ export default function Welcome(props) {
   const [mnemonic, setMnemonic] = useState('');
   const onBack = () => setStatus('');
   const account = async (name, password) => {
-    const checkStore = await getStorage(STORAGE.encryptedKey);
-    console.log('checkStore', checkStore);
     let _mnemonic = mnemonic;
     try {
       if (!_mnemonic) {
         _mnemonic = await bip39.generateMnemonic(256);
       }
-      console.log('_mnemonic', _mnemonic);
       let success = await createWallet(name, _mnemonic, password);
       if (success) {
         navigation.navigate('Main', {mnemonic: _mnemonic});
@@ -56,12 +46,10 @@ export default function Welcome(props) {
   };
   const initMnemonic = async () => {
     let _mnemonic = await bip39.generateMnemonic(256);
-    console.log('initMnemonic', _mnemonic);
     setMnemonic(_mnemonic);
     setStatus('authForm');
   };
   const importSeed = seed => {
-    console.log('importSeed', seed);
     setMnemonic(seed);
     setTimeout(() => {
       setStatus('authForm');

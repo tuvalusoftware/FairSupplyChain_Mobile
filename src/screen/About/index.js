@@ -4,9 +4,13 @@
  * @author  NNTruong / nhuttruong6496@gmail.com
  */
 import React from 'react';
-import {Box, Image, Text, ScrollView} from 'native-base';
+import {Box, Image, Text, ScrollView, useTheme} from 'native-base';
 import logo from '../../images/logo.png';
+import {Linking} from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
 export default function Index(props) {
+  const {colors} = useTheme();
   return (
     <ScrollView>
       <Box p="12px">
@@ -52,6 +56,20 @@ export default function Index(props) {
             new markets available through accessible supply chains, we can
             potentially reduce the competitive leverage provided by local spot
             markets.
+          </Text>
+          <Text
+            onPress={() =>
+              Linking.openURL('https://fuixlabs.com/supply-chain-in-ghana.html')
+            }
+            color="primary.500"
+            textAlign="center"
+            mt="22px">
+            Lear more{' '}
+            <MaterialCommunityIcons
+              name="open-in-new"
+              size={20}
+              color={colors.primary[500]}
+            />
           </Text>
         </Box>
       </Box>

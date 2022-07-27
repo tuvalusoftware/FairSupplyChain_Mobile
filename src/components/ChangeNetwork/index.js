@@ -10,7 +10,7 @@ import {userSliceActions} from '../../redux/reducer/user';
 import {useDispatch} from 'react-redux';
 import {setNetwork, getNetwork} from '../../util/script';
 import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
-export default function Index({containerStyle, onChangeNetwork}) {
+export default function Index({containerStyle, isRequesting, onChangeNetwork}) {
   const dispatch = useDispatch();
   const [status, setStatus] = useState(NETWORK_ID.mainnet);
   const _network = useShallowEqualSelector(state => state.user.network);
@@ -52,7 +52,10 @@ export default function Index({containerStyle, onChangeNetwork}) {
       <Text bold mb="12px">
         Network
       </Text>
-      <Radio.Group onChange={_onChangeNetwork} value={status}>
+      <Radio.Group
+        onChange={_onChangeNetwork}
+        value={status}
+        isDisabled={isRequesting}>
         <Stack
           mt="12px"
           direction={{
@@ -66,8 +69,12 @@ export default function Index({containerStyle, onChangeNetwork}) {
           space={12}
           w="75%"
           maxW="300px">
-          <Radio value={NETWORK_ID.testnet}>Testnet</Radio>
-          <Radio value={NETWORK_ID.mainnet}>Mainnet</Radio>
+          <Radio isDisabled={isRequesting} value={NETWORK_ID.testnet}>
+            Testnet
+          </Radio>
+          <Radio isDisabled={isRequesting} value={NETWORK_ID.mainnet}>
+            Mainnet
+          </Radio>
         </Stack>
       </Radio.Group>
     </Flex>

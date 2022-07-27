@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import React, {useEffect, useState} from 'react';
-import {StatusBar, useColorScheme, AppState} from 'react-native';
+import {StatusBar, useColorScheme} from 'react-native';
 import {NativeBaseProvider} from 'native-base';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
@@ -33,7 +33,7 @@ LogBox.ignoreLogs(['NativeBase:']);
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 // const _contentContainerStyle = {flexGrow: 1};
-
+let interval;
 const Stack = createNativeStackNavigator();
 const App = () => {
   const dispatch = useDispatch();
@@ -46,6 +46,7 @@ const App = () => {
   const initNetwork = async () => {
     let _network = await getNetwork();
     // console.log('initNetwork', _network);
+
     if (_network.id === NETWORK_ID.mainnet) {
       dispatch(
         userSliceActions.setData({
@@ -73,6 +74,7 @@ const App = () => {
     try {
       let account = await getCurrentAccount();
       if (account) {
+        console.log('account');
         dispatch(
           userSliceActions.setData({
             userInfo: account,
@@ -93,64 +95,43 @@ const App = () => {
       setTimeout(() => SplashScreen.hide(), 1000);
     }
   };
-  // const requestCameraPermission = async () => {
-  //   try {
-  //     const granted = await PermissionsAndroid.request(
-  //       PermissionsAndroid.PERMISSIONS.CAMERA,
-  //       {
-  //         title: 'Cool Photo App Camera Permission',
-  //         message:
-  //           'Cool Photo App needs access to your camera ' +
-  //           'so you can take awesome pictures.',
-  //         buttonNeutral: 'Ask Me Later',
-  //         buttonNegative: 'Cancel',
-  //         buttonPositive: 'OK',
-  //       },
-  //     );
-  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-  //       console.log('You can use the camera');
-  //     } else {
-  //       console.log('Camera permission denied');
-  //     }
-  //   } catch (err) {
-  //     console.warn(err);
-  //   }
-  // };
-  const _getBalanceFirstTime = async () => {
-    console.log('_getBalanceFirstTime');
+
+  // countEl.current = network;
+  const fetchBalance = async _network => {
+    let account = await getCurrentAccount();
+    let network_2 = await getNetwork();
+    if (!account) {
+      return;
+    }
+    if (interval) {
+      clearInterval(interval);
+    }
+    // const _price = await fetchPrice();
+    // setPrice(_price);
     const asset = await getBalance();
+    if (network_2.id !== _network) {
+      return;
+    }
     dispatch(
       userSliceActions.setData({
         userInfo: {assets: [asset]},
       }),
     );
+    interval = setTimeout(() => fetchBalance(_network), 60000);
+  };
+  const init = async () => {
+    await initUser();
+    fetchBalance(network);
   };
   useEffect(() => {
-    // setIsLoading(true);
-    initUser();
+    init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [network]);
   useEffect(() => {
-    // requestCameraPermission();
     initNetwork();
-    _getBalanceFirstTime();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    AppState.addEventListener('change', handleAppStateChange);
-
-    return () => {
-      AppState.removeEventListener('change', handleAppStateChange);
-    };
-  }, []);
-
-  const handleAppStateChange = nextAppState => {
-    console.log('nextAppState', nextAppState);
-    if (nextAppState === 'inactive') {
-      console.log('the app is closed');
-    }
-  };
   const isDarkMode = useColorScheme() === 'dark';
   if (isLoading) {
     return null;

@@ -29,6 +29,19 @@ export default function Home(props) {
     data = await getTransitions();
     dispatch(documentsSliceActions.fetchDocuments({data}));
   };
+  const onLogin = () => {
+    _getTransition();
+  };
+  const _getTransition = async () => {
+    dispatch(documentsSliceActions.setFetchingDocuments({status: true}));
+    try {
+      let data = await getTransitions();
+      dispatch(documentsSliceActions.fetchDocuments({data}));
+    } catch (err) {
+      console.log(err);
+    }
+    dispatch(documentsSliceActions.setFetchingDocuments({status: false}));
+  };
   const renderDocumentItem = (document, index) => {
     const {title, image, id, createAt} = document;
     const primary = colors.primary[500];
@@ -86,7 +99,11 @@ export default function Home(props) {
           <NotConnectServerForm setOpenLogin={setOpenLogin} />
         )}
       </Box>
-      <LoginSheet openLogin={openLogin} setOpenLogin={setOpenLogin} />
+      <LoginSheet
+        openLogin={openLogin}
+        setOpenLogin={setOpenLogin}
+        onLogin={onLogin}
+      />
     </Box>
   );
 }

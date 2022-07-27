@@ -119,7 +119,10 @@ export default function LoginSheet({
                 verify the document.
               </Text>
               {hideChangeNetwork ? null : (
-                <ChangeNetwork containerStyle={{mb: '12px', mt: '12px'}} />
+                <ChangeNetwork
+                  containerStyle={{mb: '12px', mt: '12px'}}
+                  isRequesting={isRequesting}
+                />
               )}
               <Text bold mt="12px" mb="12px">
                 Password

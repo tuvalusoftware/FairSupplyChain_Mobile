@@ -13,11 +13,9 @@ import Constants, {setStorage} from '../../util/Constants';
 import Documents from '../Documents';
 import ModalSeed from './ModalSeed';
 import LoginSheet from '../../components/LoginSheet';
-import {verifyAccessToken, getAddress, getTransitions} from '../../util/script';
+import {getTransitions} from '../../util/script';
 import {useDispatch} from 'react-redux';
 import {useDisclose} from 'native-base';
-// import {userSliceActions} from '../../redux/reducer/user';
-// import {getStorage} from '../../util/Constants';
 import {documentsSliceActions} from '../../redux/reducer/documents';
 import Gallery from '../Gallery';
 import QuickActions from './QuickActions';
@@ -33,10 +31,12 @@ export default function Main(props) {
   }));
   const {colors} = useTheme();
   const dispatch = useDispatch();
+  console.log(props.route?.params);
   useEffect(() => {
-    console.log('initData');
-    initData();
-  }, [props.route?.params?.mnemonic]);
+    if (user.isLogged) {
+      initData();
+    }
+  }, [user.isLogged]);
   useEffect(() => {
     if (props.route?.params?.fetchNew) {
       _getTransition();
@@ -54,8 +54,8 @@ export default function Main(props) {
     // await checkConnected(_mnemonic);
     setInitData(false);
   };
+
   const onLogin = () => {
-    console.log('onLogin');
     _getTransition();
   };
   const handleClose = () => {

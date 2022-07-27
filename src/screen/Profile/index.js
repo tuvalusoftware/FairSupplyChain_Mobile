@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useState} from 'react';
 import {Box, Flex, Text, useTheme} from 'native-base';
 import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
 import {TouchableOpacity} from 'react-native';
@@ -13,10 +13,6 @@ import EditModel from './EditDisplayName';
 import ChangeNetwork from '../../components/ChangeNetwork';
 import styles from './styles';
 import LoginSheet from '../../components/LoginSheet';
-import {
-  // fetchPrice,
-  getBalance,
-} from '../../util/script';
 import Constants, {setStorage} from '../../util/Constants';
 const Row = ({data}) => {
   const {colors} = useTheme();
@@ -87,43 +83,14 @@ const ButtonEdit = props => {
 
 export default function Index(props) {
   const user = useShallowEqualSelector(state => state.user);
-  const _network = useShallowEqualSelector(state => state.user.network);
-  const {colors} = useTheme();
   const [openLogin, setOpenLogin] = useState(false);
   // const [price, setPrice] = useState(1);
   const [openEdit, setOpenEdit] = useState(false);
   const dispatch = useDispatch();
   // let interval = '';
-  const [interval, setInterval] = useState('');
+
   let navigation = props.navigation;
-  useEffect(() => {
-    fetchBalance(_network);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_network]);
-  const countEl = useRef(user);
-  countEl.current = user;
-  const fetchBalance = async network => {
-    if (!user.isLogged) {
-      return;
-    }
-    if (interval) {
-      clearInterval(interval);
-      setInterval(null);
-    }
-    // const _price = await fetchPrice();
-    // setPrice(_price);
-    const asset = await getBalance();
-    if (countEl.current.network !== network) {
-      return;
-    }
-    dispatch(
-      userSliceActions.setData({
-        userInfo: {assets: [asset]},
-      }),
-    );
-    let _interval = setTimeout(() => fetchBalance(network), 60000);
-    setInterval(_interval);
-  };
+
   const compact = (string, length) => {
     if (string?.length > length) {
       return (
@@ -136,9 +103,6 @@ export default function Index(props) {
   };
 
   const _logout = () => {
-    if (interval) {
-      clearInterval(interval);
-    }
     dispatch(logout());
     navigation.navigate('Home');
     navigation.navigate('Welcome');
