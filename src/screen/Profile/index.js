@@ -191,25 +191,40 @@ export default function Index(props) {
         }}
         onChangeNetwork={onChangeNetwork}
       />
+      <Box py="8px" bg="white">
+        <TouchableOpacity onPress={() => navigation.navigate('About')}>
+          <Box
+            w="full"
+            bg="white"
+            h="50px"
+            alignItems="center"
+            justifyContent="flex-start"
+            flexDirection="row"
+            px="22px">
+            <MaterialCommunityIcons name="face-agent" size={30} />
+            <Text ml="8px" color="black" flex={1}>
+              About Fuixlabs Wallet
+            </Text>
+            <MaterialCommunityIcons name="chevron-right" size={30} />
+          </Box>
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={_logout}>
-        <Box
-          w="full"
-          bg="white"
-          h="50px"
-          alignItems="center"
-          justifyContent="center"
-          flexDirection="row">
-          <MaterialCommunityIcons
-            name="logout"
-            size={30}
-            color={colors.primary[500]}
-          />
-          <Text ml="4px" color="primary.500">
-            Disconnect
-          </Text>
-        </Box>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={_logout}>
+          <Box
+            w="full"
+            bg="white"
+            h="50px"
+            alignItems="center"
+            justifyContent="flex-start"
+            flexDirection="row"
+            px="22px">
+            <MaterialCommunityIcons name="logout" size={30} />
+            <Text ml="8px" color="black">
+              Disconnect
+            </Text>
+          </Box>
+        </TouchableOpacity>
+      </Box>
       <EditModel
         isOpen={openEdit}
         onClose={() => setOpenEdit(false)}

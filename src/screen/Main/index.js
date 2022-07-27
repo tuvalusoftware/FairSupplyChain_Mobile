@@ -15,86 +15,54 @@ import ModalSeed from './ModalSeed';
 import LoginSheet from '../../components/LoginSheet';
 import {verifyAccessToken, getAddress, getTransitions} from '../../util/script';
 import {useDispatch} from 'react-redux';
-import {userSliceActions} from '../../redux/reducer/user';
-import {getStorage} from '../../util/Constants';
+import {useDisclose} from 'native-base';
+// import {userSliceActions} from '../../redux/reducer/user';
+// import {getStorage} from '../../util/Constants';
 import {documentsSliceActions} from '../../redux/reducer/documents';
 import Gallery from '../Gallery';
+import QuickActions from './QuickActions';
 const Tab = createBottomTabNavigator();
 export default function Main(props) {
-  const [open, setOpen] = useState(false);
+  const [openModalCopySeed, setOpenModalCopySeed] = useState(false);
   const [mnemonic, setMnemonic] = useState('');
-  const [connected, setConnected] = useState(false);
-  const [error, setError] = useState('');
   const [openLogin, setOpenLogin] = useState(false);
   const [isInitData, setInitData] = useState(false);
+  const {isOpen, onOpen, onClose} = useDisclose();
   const {user} = useShallowEqualSelector(state => ({
     user: state.user,
   }));
   const {colors} = useTheme();
   const dispatch = useDispatch();
   useEffect(() => {
+    console.log('initData');
     initData();
   }, [props.route?.params?.mnemonic]);
   useEffect(() => {
     if (props.route?.params?.fetchNew) {
       _getTransition();
     }
-  }, [props.route?.params]);
+  }, [props.route?.params?.fetchNew]);
+
   const initData = async () => {
     setInitData(true);
     let _mnemonic = props.route?.params?.mnemonic;
     setMnemonic(_mnemonic);
-    setOpen(Boolean(_mnemonic));
-    await checkConnected(_mnemonic);
+    setOpenModalCopySeed(Boolean(_mnemonic));
+    if (!_mnemonic) {
+      setOpenLogin(true);
+    }
+    // await checkConnected(_mnemonic);
     setInitData(false);
   };
-
+  const onLogin = () => {
+    console.log('onLogin');
+    _getTransition();
+  };
   const handleClose = () => {
-    setOpen(false);
-    if (!connected) {
-      setOpenLogin(true);
-    }
+    setOpenModalCopySeed(false);
+    setOpenLogin(true);
   };
 
-  const dispatchUser = data => {
-    dispatch(userSliceActions.setData(data));
-  };
-
-  const checkConnected = async _mnemonic => {
-    let _access_token = await getStorage(Constants.STORAGE.access_token);
-    setConnected(Boolean(_access_token));
-    if (_access_token) {
-      //call verify api
-      let res;
-      try {
-        res = await verifyAccessToken(_access_token);
-        console.log('checkConnected', res?.data);
-        if (!res.data?.error_code) {
-          dispatchUser({
-            connectedAuthServer: true,
-          });
-          _getTransition();
-          // await setStorage(
-          //   Constants.STORAGE.access_token,
-          //   res?.data?.access_token,
-          // );
-        } else {
-          throw new Error('Login session expired, please login again');
-        }
-      } catch (err) {
-        dispatchUser({
-          connectedAuthServer: false,
-        });
-        setOpenLogin(true);
-        setError('Login session expired, please login again');
-      }
-      return;
-    }
-    if (!_mnemonic) {
-      console.log('checkConnected2');
-      setOpenLogin(true);
-    }
-  };
   const _getTransition = async () => {
     dispatch(documentsSliceActions.setFetchingDocuments({status: true}));
     try {
@@ -133,6 +101,7 @@ export default function Main(props) {
             },
           }}
         />
+
         {Constants.isManager(user.role) ? (
           <Tab.Screen
             name="Docs"
@@ -161,7 +130,7 @@ export default function Main(props) {
                 <TouchableOpacity
                   {..._props}
                   activeOpacity={1}
-                  onPress={() => props.navigation.navigate('CreateDocument')}
+                  onPress={() => onOpen(true)}
                 />
               ),
               tabBarIcon: _props => {
@@ -169,7 +138,7 @@ export default function Main(props) {
                   <Box {...styles.containerCreateButton}>
                     <Box {...styles.createButton}>
                       <MaterialCommunityIcons
-                        name="file-plus-outline"
+                        name="file-outline"
                         size={30}
                         color="white"
                       />
@@ -199,12 +168,17 @@ export default function Main(props) {
           }}
         />
       </Tab.Navigator>
-      <ModalSeed seed={mnemonic} open={open} handleClose={handleClose} />
+      <ModalSeed
+        seed={mnemonic}
+        open={openModalCopySeed}
+        handleClose={handleClose}
+      />
       <LoginSheet
         openLogin={openLogin}
         setOpenLogin={setOpenLogin}
-        error={error}
+        onLogin={onLogin}
       />
+      <QuickActions isOpen={isOpen} onClose={onClose} />
     </>
   );
 }

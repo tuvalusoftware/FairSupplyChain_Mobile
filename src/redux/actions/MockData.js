@@ -95,7 +95,7 @@ const MockData = {
   settings: {
     document: {
       typeDocument: {
-        'Certificate of Analysis (COA)2': {
+        'Certificate of Analysis (COA)': {
           network: 'testnet',
           forms: [
             {
@@ -130,7 +130,7 @@ const MockData = {
             },
           ],
         },
-        'Certificate of Analysis (COA)': {
+        'Certificate of Analysis (COA) 2': {
           network: 'testnet',
           forms: [
             {

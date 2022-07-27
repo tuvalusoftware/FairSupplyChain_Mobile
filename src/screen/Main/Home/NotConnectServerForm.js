@@ -8,7 +8,6 @@ import {Box, Flex, Button, Text, useTheme} from 'native-base';
 import styles from '../styles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 export default function Index(props) {
-  console.log('render NoConnectServerForm');
   const {colors} = useTheme();
   const open = () => {
     props.setOpenLogin(true);

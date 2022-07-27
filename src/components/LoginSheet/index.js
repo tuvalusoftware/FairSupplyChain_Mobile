@@ -111,8 +111,8 @@ export default function LoginSheet({
       okLabel="Login"
       description={() => {
         return (
-          <Box mt="12px" h={hideChangeNetwork ? '200px' : '300px'}>
-            <ScrollView h="200px">
+          <Box mt="12px" h={hideChangeNetwork ? '180px' : '300px'}>
+            <ScrollView h="180px">
               <Text textAlign="center">
                 All is almost done, please login to the system with your wallet
                 to complete the connection process then you can create and

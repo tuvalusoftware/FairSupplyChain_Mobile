@@ -10,10 +10,12 @@ import QRImage from '../../images/QRImage.png';
 export default function DocumentItem(props) {
   const {data, history} = props.document;
   const navigation = props.navigation;
-  const {name, fileName} = data;
+  const {name} = data;
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate('DocumentDetail', {id: fileName})}>
+      onPress={() =>
+        navigation.navigate('DocumentDetail', {document: props.document})
+      }>
       <Box {...styles.container}>
         <Box h="310px" overflow="hidden" px="12px">
           <DocumentTemplate document={props.document} />

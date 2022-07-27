@@ -23,57 +23,14 @@ export default function Home(props) {
   }));
   const dispatch = useDispatch();
   const connectedAuthServer = user?.connectedAuthServer;
-  // const [countVerify, setCount] = useState([0, 0, 0]);
   const {colors} = useTheme();
-  // useEffect(() => {
-  //   let newCount = [0, 0, 0];
-  //   documents.forEach(element => {
-  //     if (element.status === 'Verified') {
-  //       newCount[0]++;
-  //     }
-  //     if (element.status === 'Verifying') {
-  //       newCount[1]++;
-  //     }
-  //     if (element.status === 'Rejected') {
-  //       newCount[2]++;
-  //     }
-  //   });
-  //   setCount(newCount);
-  // }, []);
-  // let lists = [
-  //   {
-  //     number: countVerify[0],
-  //     styles: {w: Constants.isManager(user.role) ? '32%' : '48%'},
-  //     logo: Constants.isManager(user.role) ? '' : verified,
-  //     text: 'Verified' + (Constants.isManager(user.role) ? '' : 'Docs'),
-  //   },
-  //   {
-  //     number: countVerify[1],
-  //     styles: {
-  //       bgColor: '#E09A0D',
-  //       w: Constants.isManager(user.role) ? '32%' : '48%',
-  //     },
-  //     logo: Constants.isManager(user.role) ? '' : verifying,
-  //     text: 'Verifying' + (Constants.isManager(user.role) ? '' : 'Docs'),
-  //   },
-  // ];
-  // if (Constants.isManager(user.role)) {
-  //   lists.push({
-  //     number: countVerify[2],
-  //     styles: {bgColor: '#274A54', w: '32%'},
-  //     text: 'Rejected',
-  //   });
-  // }
-
   const onRefresh = async () => {
     let data = [];
     data = await getTransitions();
     dispatch(documentsSliceActions.fetchDocuments({data}));
   };
   const renderDocumentItem = (document, index) => {
-    console.log(document);
     const {title, image, id, createAt} = document;
-
     const primary = colors.primary[500];
     return (
       <TouchableOpacity
@@ -99,7 +56,6 @@ export default function Home(props) {
       </TouchableOpacity>
     );
   };
-  console.log(isFetching);
   return (
     <Box h="full" flexDirection="column">
       <Flex
@@ -112,11 +68,6 @@ export default function Home(props) {
         <AccountButton />
         {Constants.isManager(user.role) ? '' : <NotificationButton />}
       </Flex>
-      {/* <Flex direction="row" justifyContent="space-between" mb="20px" p="4">
-        {lists.map((item, index) => {
-          return <VerifiedDocs key={index} {...item} />;
-        })}
-      </Flex> */}
       <Box px="4" flex={1}>
         {connectedAuthServer ? (
           <ListDocument

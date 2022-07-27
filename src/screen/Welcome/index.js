@@ -101,7 +101,7 @@ export default function Welcome(props) {
               Welcome to
             </Text>
             <Text bold fontSize={32}>
-              Fair Supply Chain
+              Fuixlabs Wallet
             </Text>
           </Center>
 
@@ -112,7 +112,7 @@ export default function Welcome(props) {
               ''
             )}
             {status === 'authForm' ? (
-              <AuthForm createWallet={_createWallet} />
+              <AuthForm createWallet={_createWallet} onBack={onBack} />
             ) : (
               ''
             )}

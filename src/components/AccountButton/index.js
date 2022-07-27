@@ -1,5 +1,5 @@
 import React from 'react';
-import {Flex, Avatar, Text, useTheme} from 'native-base';
+import {Flex, Box, Text, useTheme} from 'native-base';
 import avatar from '../../images/avatar.png';
 import {useNavigation} from '@react-navigation/core';
 import {TouchableOpacity} from 'react-native';
@@ -27,15 +27,20 @@ export default function AccountButton() {
         direction="row"
         justifyContent="center"
         alignItems="center">
-        <Avatar
-          bg="cyan.500"
-          source={avatar}
-          borderColor="primary.200"
-          borderWidth={2}
-          w="36px"
-          h="36px">
-          USER
-        </Avatar>
+        <Box
+          w="32px"
+          h="32px"
+          borderRadius="20px"
+          bg="blue.100"
+          alignItems="center"
+          justifyContent="center">
+          <MaterialCommunityIcons
+            name="account"
+            size={24}
+            color={colors.blue[500]}
+          />
+        </Box>
+
         <Text bold fontSize={16} ml="6px" mr="6px">
           {compact(user.userInfo.name)}
         </Text>

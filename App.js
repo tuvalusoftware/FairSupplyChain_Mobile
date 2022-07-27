@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import React, {useEffect, useState} from 'react';
-import {StatusBar, useColorScheme} from 'react-native';
+import {StatusBar, useColorScheme, AppState} from 'react-native';
 import {NativeBaseProvider} from 'native-base';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
@@ -136,15 +136,25 @@ const App = () => {
     _getBalanceFirstTime();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      AppState.removeEventListener('change', handleAppStateChange);
+    };
+  }, []);
+
+  const handleAppStateChange = nextAppState => {
+    console.log('nextAppState', nextAppState);
+    if (nextAppState === 'inactive') {
+      console.log('the app is closed');
+    }
+  };
   const isDarkMode = useColorScheme() === 'dark';
-  // console.log('isLogged', isLogged);
-  console.log('onboardingViewed', onboardingViewed);
   if (isLoading) {
-    //show skeleton
     return null;
   }
-  console.log('SplashScreen hide');
-  // SplashScreen.hide();
   return (
     <NavigationContainer>
       <NativeBaseProvider theme={CreateTheme}>
@@ -158,7 +168,8 @@ const App = () => {
               }}
             />
           ) : (
-            <Stack.Navigator initialRouteName={isLogged ? 'Main' : 'Welcome'}>
+            <Stack.Navigator
+              initialRouteName={isLogged ? 'RevokeDoc' : 'Welcome'}>
               {routes.map((item, index) => {
                 return <Stack.Screen {...item} key={index} />;
               })}

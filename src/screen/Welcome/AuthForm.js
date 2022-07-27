@@ -4,7 +4,8 @@
  * @author  NNTruong / nhuttruong6496@gmail.com
  */
 import React, {useState} from 'react';
-import {Box, Text, Input, Button, FormControl} from 'native-base';
+import {Box, Text, Center, Input, Button, FormControl} from 'native-base';
+import {TouchableOpacity} from 'react-native';
 export default function Index(props) {
   const [password, setPassword] = useState('');
   // const [confirmPassword, setConfirmPassword] = useState('');
@@ -87,6 +88,21 @@ export default function Index(props) {
       <Button mt="22px" h="50px" isDisabled={isDisabled()} onPress={create}>
         Create
       </Button>
+      <Center flexDirection="row" mt="22px">
+        <Text>Already have a seed phase?</Text>
+        <TouchableOpacity onPress={props.onBack}>
+          <Text
+            bold
+            textAlign="center"
+            color="black"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            ml="4px">
+            Import wallet
+          </Text>
+        </TouchableOpacity>
+      </Center>
     </Box>
   );
 }

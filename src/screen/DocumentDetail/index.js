@@ -1,17 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useState, useEffect} from 'react';
-import {
-  Box,
-  Text,
-  Flex,
-  Skeleton,
-  // Image,
-  // Button,
-  // useDisclose,
-  // TextArea,
-} from 'native-base';
+import {Box, Text, Flex, Skeleton} from 'native-base';
 import {TouchableOpacity, ScrollView} from 'react-native';
-import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './styles';
 import DocumentTemplate from '../../components/DocumentTemplate';
@@ -27,12 +17,11 @@ export default function DocumentDetail(props) {
   const {colors} = useTheme();
   const [info, setInfo] = useState();
   const [requesting, setRequesting] = useState(true);
-  let id = props.route.params.id;
   let navigation = props.navigation;
-  const {document} = useShallowEqualSelector(state => ({
-    document: state.documents.data.find(item => item.data.fileName === id),
-  }));
-
+  let document = {};
+  if (props.route.params.document) {
+    document = props.route.params.document;
+  }
   const renderAsset = () => {
     if (!isCanTrade(name)) {
       return null;

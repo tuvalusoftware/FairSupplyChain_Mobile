@@ -12,7 +12,7 @@ const styles = {
     direction: 'row',
     w: 'full',
     justifyContent: 'space-between',
-    mt: '22px',
+    mt: '12px',
     pb: '22px',
   },
 };

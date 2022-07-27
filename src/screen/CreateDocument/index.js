@@ -76,10 +76,9 @@ export default function CreateDocument(props) {
     return string;
   };
   const disabled = () => {
-    return !(type && issuer);
+    return !(type && issuer && !isRequesting);
   };
   const onOk = async (_passwork = password) => {
-    console.log(_passwork);
     setIsRequesting(true);
     let address = await getAddress();
     let _access_token = await getStorage(Constants.STORAGE.access_token);
@@ -323,12 +322,24 @@ export default function CreateDocument(props) {
           </Box>
         ) : null}
         <Box p="12px" mt="20px">
+          {error ? (
+            <Text color="red.500" mb="12px">
+              Please try again. {error}
+            </Text>
+          ) : null}
           <Button
             {...styles.buttonVerify}
             isDisabled={disabled()}
-            onPress={() =>
-              connectedAuthServer ? onOpen(true) : setOpenLogin(true)
-            }>
+            isLoading={isRequesting}
+            isLoadingText={'Request to verify'}
+            onPress={() => {
+              if (connectedAuthServer) {
+                onOpen(true);
+              } else {
+                setError('');
+                setOpenLogin(true);
+              }
+            }}>
             Request to verify
           </Button>
         </Box>

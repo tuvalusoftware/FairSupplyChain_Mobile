@@ -8,6 +8,9 @@ import CreateDocument from '../screen/CreateDocument';
 import DocumentDetail from '../screen/DocumentDetail';
 import Notifications from '../screen/Notifications';
 import Profile from '../screen/Profile';
+import About from '../screen/About';
+import VerifyDoc from '../screen/VerifyDocment';
+import RevokeDoc from '../screen/RevokeDoc';
 const routes = [
   {
     component: WelcomeScreen,
@@ -47,6 +50,27 @@ const routes = [
   {
     component: Profile,
     name: 'Profile',
+  },
+  {
+    component: About,
+    name: 'About',
+    options: {
+      title: 'About Fuixlabs Wallet',
+    },
+  },
+  {
+    component: VerifyDoc,
+    name: 'VerifyDoc',
+    options: {
+      title: 'Verify Document',
+    },
+  },
+  {
+    component: RevokeDoc,
+    name: 'RevokeDoc',
+    options: {
+      title: 'Revoke Document',
+    },
   },
   {
     component: Notifications,
