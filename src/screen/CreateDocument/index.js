@@ -93,7 +93,6 @@ export default function CreateDocument(props) {
           await signData(_address, payload, _passwork, 0),
         _access_token,
       );
-      console.log('wrappedDocument', wrappedDocument);
       onClose();
       setIsRequesting(false);
       navigation.navigate('Main', {fetchNew: true});
@@ -116,7 +115,6 @@ export default function CreateDocument(props) {
     setError('');
   };
   const onChange = (text, key, parentKey) => {
-    console.log(text, key, parentKey);
     let _data = {...data};
     if (parentKey) {
       _data[parentKey][key] = text;
@@ -142,9 +140,7 @@ export default function CreateDocument(props) {
     }
     let keys = Object.keys(form);
     return keys.map((key, index) => {
-      // console.log('first,', parentKey, key);
       if (typeof form[key] === 'object') {
-        // console.log('object');
         return (
           <Box mt="22px" key={key}>
             <Text bold fontSize={16} paddingLeft="8px">

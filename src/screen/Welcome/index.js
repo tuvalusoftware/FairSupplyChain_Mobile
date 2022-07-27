@@ -56,7 +56,6 @@ export default function Welcome(props) {
     }, 500);
   };
   const _createWallet = (userName, password) => {
-    console.log('_createWallet');
     account(userName, password);
   };
   return (

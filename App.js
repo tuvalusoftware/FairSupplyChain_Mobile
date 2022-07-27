@@ -45,8 +45,6 @@ const App = () => {
   const [onboardingViewed, setOnboarding] = useState(false);
   const initNetwork = async () => {
     let _network = await getNetwork();
-    // console.log('initNetwork', _network);
-
     if (_network.id === NETWORK_ID.mainnet) {
       dispatch(
         userSliceActions.setData({
@@ -74,7 +72,6 @@ const App = () => {
     try {
       let account = await getCurrentAccount();
       if (account) {
-        console.log('account');
         dispatch(
           userSliceActions.setData({
             userInfo: account,

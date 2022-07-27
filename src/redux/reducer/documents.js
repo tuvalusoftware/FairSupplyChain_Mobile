@@ -16,7 +16,6 @@ export const Slice = createSlice({
   initialState: initialModel,
   reducers: {
     fetchDocuments(state, action) {
-      console.log('fetchDocuments', action.payload.data.length);
       state.data = action.payload.data;
       return state;
     },

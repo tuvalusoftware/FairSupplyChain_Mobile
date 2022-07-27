@@ -31,7 +31,6 @@ export default function Main(props) {
   }));
   const {colors} = useTheme();
   const dispatch = useDispatch();
-  console.log(props.route?.params);
   useEffect(() => {
     if (user.isLogged) {
       initData();

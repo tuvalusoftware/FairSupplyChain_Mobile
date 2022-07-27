@@ -39,7 +39,6 @@ const Row = ({data}) => {
   );
 };
 const copyToClipboard = text => {
-  console.log(text);
   Clipboard.setString(text);
 };
 const ButtonCopy = ({text}) => {

@@ -21,7 +21,6 @@ export const logout = (params, callback) => {
 const _clearStore = async callback => {
   let onboardingViewed = await getStorage(Constants.STORAGE.onboardingViewed);
   await clearStorage();
-  console.log('onboardingViewed', onboardingViewed);
   if (onboardingViewed) {
     await setStorage(Constants.STORAGE.onboardingViewed, 'true');
   }

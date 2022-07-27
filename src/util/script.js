@@ -59,17 +59,13 @@ export const encryptWithPassword = async (password, rootKeyBytes) => {
 export const createWallet = async (name, seedPhrase, password) => {
   try {
     let entropy = mnemonicToEntropy(seedPhrase);
-    console.log('entropy', Buffer.from(entropy, 'hex'));
     let rootKey = await HaskellShelley.Bip32PrivateKey.from_bip39_entropy(
       Buffer.from(entropy, 'hex'),
       Buffer.from(''),
     );
-    console.log('rootKey', rootKey);
     let bytes = await rootKey.as_bytes();
-    console.log('bytes', bytes);
     entropy = null;
     const encryptedRootKey = await encryptWithPassword(password, bytes);
-    console.log('encryptedRootKey0', encryptedRootKey);
     rootKey.free();
     rootKey = null;
 
@@ -140,9 +136,7 @@ export const createWallet = async (name, seedPhrase, password) => {
 };
 
 export const createAccount = async (name, password, accountIndex = 0) => {
-  console.log('createAccount', accountIndex);
   const index = accountIndex;
-
   let {accountKey, paymentKey, stakeKey} = await requestAccountKey(
     password,
     index,
@@ -246,7 +240,6 @@ export const requestAccountKey = async (password, accountIndex) => {
   let accountKey = {};
   try {
     let decryptedHex = await decryptWithPassword(password, encryptedRootKey);
-    console.log('decryptedHex', decryptedHex);
     if (!decryptedHex) {
       throw new Error('Incorrect Password');
     }
@@ -367,7 +360,6 @@ export const setNetwork = async network => {
 };
 
 export const switchAccount = async accountIndex => {
-  console.log('switchAccount', accountIndex);
   await setStorage(STORAGE.currentAccount, accountIndex.toString());
   //   const address = await getAddress();
   return true;
@@ -414,7 +406,6 @@ export const getBalance = async () => {
   if (!currentAccount) {
     return {...asset};
   }
-  console.log('getBalance', currentAccount.paymentAddr);
   const result = await blockfrostRequest(
     `/addresses/${currentAccount.paymentAddr}`,
   );
@@ -429,7 +420,6 @@ export const getBalance = async () => {
   let coin = await value.coin();
   coin = await coin.to_str();
   let amount = await formatBigNumWithDecimals(coin, 6);
-  console.log('amount', amount);
   return {
     ...asset,
     amount,
@@ -473,7 +463,6 @@ export const assetsToValue = async assets => {
 };
 
 export const formatBigNumWithDecimals = async (num, decimals) => {
-  console.log('num', num);
   let singleUnit = await HaskellShelley.BigNum.from_str(
     '1' + '0'.repeat(decimals),
   );
@@ -489,7 +478,6 @@ export const formatBigNumWithDecimals = async (num, decimals) => {
 
 export const loginAuthServer = async (params, access_token) => {
   let result;
-  console.log('prams', params);
   try {
     const rawResult = await axios.post(Constants.authServer + 'login', params, {
       withCredentials: true,
@@ -726,7 +714,6 @@ const isValidAddressBytes = async address => {
   try {
     const addr = await HaskellShelley.ByronAddress.from_bytes(address);
     let net_id = await addr.network_id();
-    console.log('net_id', net_id);
     if (
       (net_id === 1 && network.id === NETWORK_ID.mainnet) ||
       (net_id === 0 && network.id === NETWORK_ID.testnet)
@@ -745,7 +732,6 @@ export const getTransitions = async () => {
   try {
     let address = await getAddress();
     let transition = await _getTransactions(address, _access_token);
-    console.log('transition', transition);
     let data = await getWrappedDocumentsContent(transition, _access_token);
     data = data?.map((item, index) => ({
       ...deepUnsalt(item),
