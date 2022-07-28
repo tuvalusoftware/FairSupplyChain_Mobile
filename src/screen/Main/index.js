@@ -46,8 +46,9 @@ export default function Main(props) {
     setInitData(true);
     let _mnemonic = props.route?.params?.mnemonic;
     setMnemonic(_mnemonic);
-    setOpenModalCopySeed(Boolean(_mnemonic));
-    if (!_mnemonic) {
+    let open = Boolean(_mnemonic);
+    setOpenModalCopySeed(open);
+    if (!open) {
       setOpenLogin(true);
     }
     // await checkConnected(_mnemonic);

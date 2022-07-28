@@ -22,10 +22,9 @@ import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelec
 import styles from './styles';
 import {createDocument} from '../../libs/fuixlabs-documentor';
 import {getStorage} from '../../util/Constants';
-import {signData, getAddress} from '../../util/script';
+import {signData, getAddress, signDataCIP30} from '../../util/script';
 import LoginSheet from '../../components/LoginSheet';
 const _contentContainerStyle = {flexGrow: 1};
-
 export default function CreateDocument(props) {
   const navigation = props.navigation;
   const [type, setType] = useState('');
@@ -90,9 +89,10 @@ export default function CreateDocument(props) {
         false,
         {},
         async (_address, payload) =>
-          await signData(_address, payload, _passwork, 0),
+          await signDataCIP30(_address, payload, _passwork, 0),
         _access_token,
       );
+      console.log('wrappedDocument', JSON.stringify(wrappedDocument));
       onClose();
       setIsRequesting(false);
       navigation.navigate('Main', {fetchNew: true});

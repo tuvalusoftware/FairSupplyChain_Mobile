@@ -6,6 +6,7 @@
 import React from 'react';
 import TemplateBill from './TemplateBill';
 import TemplateBill2 from './TemplateBill2';
+import {Box, Text} from 'native-base';
 import {VALID_DOCUMENT_NAME_TYPE} from '../../libs/fuixlabs-documentor/constants/type';
 export default function Index(props) {
   let document = props.document;
@@ -17,6 +18,13 @@ export default function Index(props) {
     case VALID_DOCUMENT_NAME_TYPE[3].name:
       return <TemplateBill2 document={document} />;
     default:
-      return null;
+      return (
+        <Box bg="white" p="12" borderRadius="8px">
+          {' '}
+          <Text color="black" bold textAlign="center">
+            Document do not support template
+          </Text>
+        </Box>
+      );
   }
 }

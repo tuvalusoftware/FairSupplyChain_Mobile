@@ -130,50 +130,50 @@ const MockData = {
             },
           ],
         },
-        'Certificate of Analysis (COA) 2': {
-          network: 'testnet',
-          forms: [
-            {
-              data: {
-                name: 'Bill of Landing',
-                title: 'Test Title By Caps2',
-                remarks: 'Test Remarks By Caps',
-                fileName: 'Certificate of Analysis (COA)',
-                shippingInformation: {
-                  title: 'Name & Address of Shipping Agent/Freight Forwarder',
-                  countryName: 'VIET NAM',
-                  stress: 'SG Freight',
-                  address: '101 ORCHARD ROAD',
-                },
-                customInformation: {
-                  title: 'Demo custom',
-                  additionalAddress: '55 Newton Road',
-                  telephoneNumber: '+84988888888',
-                },
-                declarationInformation: {
-                  title: 'Declaration by Shipping Agent/Freight Forwarder',
-                  declarationName: 'PETER LEE',
-                  designation: 'SHIPPING MANAGER',
-                  date: '12/07/2022',
-                },
-                certification: {
-                  title: 'Declaration by Shipping Agent/Freight Forwarder',
-                  certificationName: 'PETER LEE',
-                  designation: 'SHIPPING MANAGER',
-                  date: '12/07/2022',
-                },
-              },
-              logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/BYR_color_wheel.svg/1024px-BYR_color_wheel.svg.png',
-              attachments: true,
-              extension: 'fl',
-              style: {
-                backgroundColor: '#ffffff',
-                titleColor: '#000000',
-                descriptionColor: '#ff0000',
-              },
-            },
-          ],
-        },
+        //   'Certificate of Analysis (COA) 2': {
+        //     network: 'testnet',
+        //     forms: [
+        //       {
+        //         data: {
+        //           name: 'Bill of Landing',
+        //           title: 'Test Title By Caps2',
+        //           remarks: 'Test Remarks By Caps',
+        //           fileName: 'Certificate of Analysis (COA)',
+        //           shippingInformation: {
+        //             title: 'Name & Address of Shipping Agent/Freight Forwarder',
+        //             countryName: 'VIET NAM',
+        //             stress: 'SG Freight',
+        //             address: '101 ORCHARD ROAD',
+        //           },
+        //           customInformation: {
+        //             title: 'Demo custom',
+        //             additionalAddress: '55 Newton Road',
+        //             telephoneNumber: '+84988888888',
+        //           },
+        //           declarationInformation: {
+        //             title: 'Declaration by Shipping Agent/Freight Forwarder',
+        //             declarationName: 'PETER LEE',
+        //             designation: 'SHIPPING MANAGER',
+        //             date: '12/07/2022',
+        //           },
+        //           certification: {
+        //             title: 'Declaration by Shipping Agent/Freight Forwarder',
+        //             certificationName: 'PETER LEE',
+        //             designation: 'SHIPPING MANAGER',
+        //             date: '12/07/2022',
+        //           },
+        //         },
+        //         logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/BYR_color_wheel.svg/1024px-BYR_color_wheel.svg.png',
+        //         attachments: true,
+        //         extension: 'fl',
+        //         style: {
+        //           backgroundColor: '#ffffff',
+        //           titleColor: '#000000',
+        //           descriptionColor: '#ff0000',
+        //         },
+        //       },
+        //     ],
+        //   },
       },
     },
   },

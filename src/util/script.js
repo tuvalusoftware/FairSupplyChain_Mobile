@@ -410,7 +410,7 @@ export const getBalance = async () => {
     `/addresses/${currentAccount.paymentAddr}`,
   );
   if (result.error) {
-    console.log('getBalance error', result.error);
+    // console.log('getBalance error', result.error);
     return {...asset};
     // if (result.status_code === 400);
     // else if (result.status_code === 500) throw APIError.InternalError;
@@ -594,19 +594,14 @@ export const signDataCIP30 = async (
   password,
   accountIndex,
 ) => {
-  const keyHash = await extractKeyHash(address);
-  const prefix = keyHash.slice(0, 5);
   let {paymentKey, stakeKey} = await requestAccountKey(password, accountIndex);
-  const accountKey = prefix === 'hbas_' ? paymentKey : stakeKey;
-
-  const publicKey = accountKey.to_public();
-  if (keyHash !== publicKey.hash().to_bech32(prefix)) {
-    throw 'DataSignError.ProofGeneration';
-  }
+  let typeAddress = await getTypeAddress(address);
+  const accountKey = typeAddress === 'payment' ? paymentKey : stakeKey;
+  const publicKey = await accountKey.to_public();
   const protectedHeaders = await CardanoMessageSigning.HeaderMap.new();
   await protectedHeaders.set_algorithm_id(
     await CardanoMessageSigning.Label.from_algorithm_id(
-      CardanoMessageSigning.AlgorithmId.EdDSA,
+      await CardanoMessageSigning.AlgorithmId.EdDSA,
     ),
   );
   // protectedHeaders.set_key_id(publicKey.as_bytes()); // Removed to adhere to CIP-30
@@ -640,12 +635,12 @@ export const signDataCIP30 = async (
 
   const key = await CardanoMessageSigning.COSEKey.new(
     await CardanoMessageSigning.Label.from_key_type(
-      CardanoMessageSigning.KeyType.OKP,
+      await CardanoMessageSigning.KeyType.OKP,
     ),
   );
   await key.set_algorithm_id(
     await CardanoMessageSigning.Label.from_algorithm_id(
-      CardanoMessageSigning.AlgorithmId.EdDSA,
+      await CardanoMessageSigning.AlgorithmId.EdDSA,
     ),
   );
   await key.set_header(
@@ -664,12 +659,12 @@ export const signDataCIP30 = async (
         await CardanoMessageSigning.BigNum.from_str('2'),
       ),
     ),
-    await CardanoMessageSigning.CBORValue.new_bytes(publicKey.as_bytes()),
+    await CardanoMessageSigning.CBORValue.new_bytes(await publicKey.as_bytes()),
   ); // x (-2) set to public key
 
   return {
-    signature: Buffer.from(coseSign1.to_bytes()).toString('hex'),
-    key: Buffer.from(key.to_bytes()).toString('hex'),
+    signature: Buffer.from(await coseSign1.to_bytes()).toString('hex'),
+    key: Buffer.from(await key.to_bytes()).toString('hex'),
   };
 };
 
@@ -694,6 +689,19 @@ export const extractKeyHash = async address => {
   if (!(await isValidAddressBytes(Buffer.from(address, 'hex')))) {
     throw 'DataSignError.InvalidFormat';
   }
+  try {
+    const baseAddr = await HaskellShelleyBaseAddress.from_address(
+      await HaskellShelleyAddress.from_bytes(Buffer.from(address, 'hex')),
+    );
+    return baseAddr.payment_cred().to_keyhash().to_bech32('hbas_');
+  } catch (e) {}
+  try {
+    const rewardAddr = HaskellShelleyRewardAddress.from_address(
+      HaskellShelleyAddress.from_bytes(Buffer.from(address, 'hex')),
+    );
+    return rewardAddr.payment_cred().to_keyhash().to_bech32('hrew_');
+  } catch (e) {}
+  throw DataSignError.AddressNotPK;
 };
 
 const isValidAddressBytes = async address => {
@@ -732,7 +740,11 @@ export const getTransitions = async () => {
   try {
     let address = await getAddress();
     let transition = await _getTransactions(address, _access_token);
+    console.log(transition);
     let data = await getWrappedDocumentsContent(transition, _access_token);
+    if (data && data[0]) {
+      // console.log('xxxxx', JSON.stringify(data[0]));
+    }
     data = data?.map((item, index) => ({
       ...deepUnsalt(item),
       status: transition[index]?.status,
@@ -740,16 +752,7 @@ export const getTransitions = async () => {
     for (let i = 0; i < data.length; i++) {
       // let didDoc = await getDidDocument(data[i].data.fileName, _access_token);
       let {policy} = data[i].mintingNFTConfig;
-      let res = await _pullNFTs(
-        CLIENT_PATH.PULL_NFTS,
-        {policyId: policy?.id},
-        _access_token,
-      );
-
-      let history = res.data.data.map((item, index) => {
-        return item?.onchainMetadata[policy.id][item.assetName]?.timestamp;
-      });
-      history.sort((a, b) => a - b);
+      let history = await getHistory(policy?.id, _access_token);
       data[i] = {...data[i], history};
     }
     data.sort((a, b) => b.history[0] - a.history[0]);
@@ -757,6 +760,7 @@ export const getTransitions = async () => {
   } catch (err) {
     console.log('getTransitions', err);
     let message = err.message || err;
+
     Alert.alert('Error', message, [
       {
         text: '',
@@ -796,16 +800,7 @@ export const searchTransition = async (
       if (!policy) {
         throw new Error('mintingNFTConfig empty');
       }
-      let _res = await _pullNFTs(
-        CLIENT_PATH.PULL_NFTS,
-        {policyId: policy?.id},
-        access_token,
-      );
-
-      let history = _res.data.data.map((item, index) => {
-        return item?.onchainMetadata[policy.id][item.assetName]?.timestamp;
-      });
-      history.sort((a, b) => a - b);
+      let history = await getHistory(policy?.id, access_token);
       data[i] = {...data[i], history};
     }
     data.sort((a, b) => b.history[0] - a.history[0]);
@@ -825,6 +820,19 @@ export const searchTransition = async (
       },
       {text: 'OK', onPress: () => console.log('OK Pressed')},
     ]);
+    throw new Error(err.message);
+  }
+};
+export const getHistory = async (policyId, access_token) => {
+  try {
+    let res = await _pullNFTs(CLIENT_PATH.PULL_NFTS, {policyId}, access_token);
+    let history = res.data.data.map(item => {
+      return item?.onchainMetadata[policyId][item.assetName]?.timestamp;
+    });
+    history.sort((a, b) => a - b);
+    return history;
+  } catch (err) {
+    console.log('getHistory error', err);
     throw new Error(err.message);
   }
 };

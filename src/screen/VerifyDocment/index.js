@@ -3,15 +3,139 @@
  *
  * @author  NNTruong / nhuttruong6496@gmail.com
  */
-import React, {useState} from 'react';
-import {Box, Select, Text, Divider, Flex, Button} from 'native-base';
+import React, {useState, useEffect} from 'react';
+import {
+  Box,
+  Select,
+  Text,
+  Divider,
+  Flex,
+  Button,
+  useTheme,
+  useDisclose,
+} from 'native-base';
 import {TouchableOpacity} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {useTheme} from 'native-base';
+import DocumentPicker from 'react-native-document-picker';
+import RNFS from 'react-native-fs';
+import {verifyWrappedDocument} from '../../libs/fuixlabs-documentor/verifyDocument';
+import {useNavigation} from '@react-navigation/core';
+import {deepUnsalt} from '../../libs/fuixlabs-documentor/utils/data';
+import {getAddress, getHistory} from '../../util/script';
+import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
+import Constants, {getStorage} from '../../util/Constants';
+import LoginSheet from '../../components/LoginSheet';
 const ITEMS = ['Cardano Network'];
+function DocError() {
+  return (
+    <Flex
+      justifyContent="center"
+      flexDirection="row"
+      bg="#EE42500D"
+      mt="12px"
+      borderRadius="4px"
+      borderRightStyle="dotted"
+      borderWidth="1px"
+      borderColor="#BD2328">
+      <Box
+        // bg={colors.blue[100]}
+        w="56px"
+        h="56px"
+        borderRadius="28px"
+        justifyContent="center"
+        alignItems="center"
+        mt="16px">
+        <MaterialCommunityIcons
+          name="delete-variant"
+          size={30}
+          color={'#BD2328'}
+        />
+      </Box>
+
+      <Box flex={1} pr="22px" pl="12px" pt="26px" pb="32px">
+        <Text bold>This document is not valid</Text>
+        <Text color="#00000073" fontSize={10}>
+          This document is not valid. Please upload a valid document.
+        </Text>
+        <Box
+          borderWidth="1px"
+          borderColor="#BD2328"
+          borderRadius="30px"
+          variant="outline"
+          mt="32px"
+          h="45px"
+          alignItems="center"
+          justifyContent="center">
+          <Text color="#BD2328" bold>
+            Try another document
+          </Text>
+        </Box>
+      </Box>
+    </Flex>
+  );
+}
 export default function Index(props) {
   const [network, setNetwork] = useState(ITEMS[0]);
+  const [file, setFile] = useState(null);
+  const [error, setError] = useState(null);
+  const [docError, setDocError] = useState(null);
+  const [isRequesting, setIsRequesting] = useState(false);
   const {colors} = useTheme();
+  const navigation = useNavigation();
+  const {isOpen, onClose, onOpen} = useDisclose();
+  const connectedAuthServer = useShallowEqualSelector(
+    state => state.user.connectedAuthServer,
+  );
+
+  useEffect(() => {
+    setFile(null);
+    setDocError(null);
+    setError(null);
+  }, []);
+  const pickDocument = async () => {
+    try {
+      // console.log(await DocumentPicker.pickDirectory());
+      const res = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
+      setError(null);
+      setDocError(null);
+      console.log('res', res);
+      if (res && res[0] && res[0].uri) {
+        let endFile = res[0].name.split('.');
+        if (endFile[endFile.length - 1] !== 'fl') {
+          setError('Extension is not valid!');
+          return;
+        }
+        setFile(res[0]);
+      }
+    } catch (e) {
+      // error
+      console.log('err', e);
+    }
+  };
+  const verify = async () => {
+    try {
+      setIsRequesting(true);
+      let data = await RNFS.readFile(file.uri);
+      let address = await getAddress();
+      data = JSON.parse(data);
+      let access_token = await getStorage(Constants.STORAGE.access_token);
+      await verifyWrappedDocument(data, address, 'cardano', access_token);
+      let document = deepUnsalt(data);
+      let {policy} = document.mintingNFTConfig;
+      let history = await getHistory(policy?.id, access_token);
+      document = {...document, history};
+      navigation.navigate('DocumentDetail', {document});
+    } catch (err) {
+      if (err.error_code) {
+        setDocError(true);
+        setFile(null);
+      }
+      console.log('verify error', err);
+    }
+    setIsRequesting(false);
+  };
   return (
     <>
       <Box bg="white" p="12px">
@@ -35,52 +159,63 @@ export default function Index(props) {
             <Select.Item key={index} label={item} value={item} />
           ))}
         </Select>
-        <TouchableOpacity onPress={() => {}}>
-          <Flex
-            justifyContent="center"
-            flexDirection="row"
-            bg="#F5F5F5"
-            mt="12px"
-            borderRadius="4px"
-            borderRightStyle="dotted"
-            borderWidth="1px"
-            borderColor="#00000026">
-            <Box
-              // bg={colors.blue[100]}
-              w="56px"
-              h="56px"
-              borderRadius="28px"
+        <TouchableOpacity onPress={pickDocument} disabled={isRequesting}>
+          {docError ? (
+            <DocError />
+          ) : (
+            <Flex
               justifyContent="center"
-              alignItems="center"
-              mt="16px">
-              <MaterialCommunityIcons
-                name="cloud-upload"
-                size={30}
-                color={colors.primary[500]}
-              />
-            </Box>
-
-            <Box flex={1} pr="22px" pl="12px" pt="26px" pb="32px">
-              <Text>Tap to upload files</Text>
-              <Text color="#00000073" fontSize={10}>
-                Upload your (.fl) file to view its contents
-              </Text>
-              <Flex
-                direction="row"
-                alignItems="center"
+              flexDirection="row"
+              bg="#F5F5F5"
+              mt="12px"
+              borderRadius="4px"
+              borderRightStyle="dotted"
+              borderWidth="1px"
+              borderColor="#00000026">
+              <Box
+                // bg={colors.blue[100]}
+                w="56px"
+                h="56px"
+                borderRadius="28px"
                 justifyContent="center"
-                mt="12px">
-                <Divider w="34%" bg="#00000019" />
-                <Text bold mx="22px">
-                  Or
+                alignItems="center"
+                mt="16px">
+                <MaterialCommunityIcons
+                  name="cloud-upload"
+                  size={30}
+                  color={colors.primary[500]}
+                />
+              </Box>
+              <Box flex={1} pr="22px" pl="12px" pt="26px" pb="32px">
+                <Text bold>{file?.name || 'Tap to upload files'}</Text>
+                <Text color="#00000073" fontSize={10}>
+                  Upload your (.fl) file to view its contents
                 </Text>
-                <Divider w="34%" bg="#00000019" />
-              </Flex>
-              <Button color="primary" borderRadius="30px" mt="32px">
-                Select Document
-              </Button>
-            </Box>
-          </Flex>
+                <Text color="red.500">{error}</Text>
+                <Flex
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="center"
+                  mt="12px">
+                  <Divider w="34%" bg="#00000019" />
+                  <Text bold mx="22px">
+                    Or
+                  </Text>
+                  <Divider w="34%" bg="#00000019" />
+                </Flex>
+                <Button
+                  color="primary"
+                  isDisabled={!file || isRequesting}
+                  borderRadius="30px"
+                  mt="32px"
+                  onPress={connectedAuthServer ? verify : onOpen}
+                  isLoading={isRequesting}
+                  isLoadingText="Select Document">
+                  Select Document
+                </Button>
+              </Box>
+            </Flex>
+          )}
         </TouchableOpacity>
       </Box>
       <Flex direction="row" bg="white" mt="12px" p="12px" w="full">
@@ -98,6 +233,7 @@ export default function Index(props) {
           </Text>
         </Box>
       </Flex>
+      <LoginSheet openLogin={isOpen} setOpenLogin={onClose} onLogin={verify} />
     </>
   );
 }

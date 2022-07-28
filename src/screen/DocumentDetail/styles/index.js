@@ -11,6 +11,7 @@ const styles = {
     px: '8px',
     py: '8px',
     bg: 'white',
+    h: '50px',
   },
   image: {
     elevation: 30,

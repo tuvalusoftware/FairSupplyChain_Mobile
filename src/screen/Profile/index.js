@@ -14,6 +14,7 @@ import ChangeNetwork from '../../components/ChangeNetwork';
 import styles from './styles';
 import LoginSheet from '../../components/LoginSheet';
 import Constants, {setStorage} from '../../util/Constants';
+import {Alert} from 'react-native';
 const Row = ({data}) => {
   const {colors} = useTheme();
 
@@ -83,10 +84,8 @@ const ButtonEdit = props => {
 export default function Index(props) {
   const user = useShallowEqualSelector(state => state.user);
   const [openLogin, setOpenLogin] = useState(false);
-  // const [price, setPrice] = useState(1);
   const [openEdit, setOpenEdit] = useState(false);
   const dispatch = useDispatch();
-  // let interval = '';
 
   let navigation = props.navigation;
 
@@ -102,9 +101,25 @@ export default function Index(props) {
   };
 
   const _logout = () => {
-    dispatch(logout());
-    navigation.navigate('Home');
-    navigation.navigate('Welcome');
+    Alert.alert('Logout', 'Do you really want to logout?', [
+      {
+        text: '',
+        onPress: () => console.log('Ask me later pressed'),
+      },
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {
+        text: 'Logout',
+        onPress: () => {
+          dispatch(logout());
+          navigation.navigate('Home');
+          navigation.navigate('Welcome');
+        },
+      },
+    ]);
   };
   let asset = user?.userInfo?.assets[0];
   const ROWS = [
@@ -172,7 +187,7 @@ export default function Index(props) {
           </Box>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={_logout}>
+        <TouchableOpacity onPress={() => _logout(true)}>
           <Box
             w="full"
             bg="white"
@@ -183,7 +198,7 @@ export default function Index(props) {
             px="22px">
             <MaterialCommunityIcons name="logout" size={30} />
             <Text ml="8px" color="black">
-              Disconnect
+              Lgout
             </Text>
           </Box>
         </TouchableOpacity>

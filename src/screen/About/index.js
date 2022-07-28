@@ -17,7 +17,7 @@ export default function Index(props) {
         <Box justifyContent="center" alignItems="center">
           <Image source={logo} alt="logo" h="100px" resizeMode="contain" />
           <Text bold mt="12px">
-            Fuixlabs Wallet 1.0.2
+            Fuixlabs Wallet 1.0.3
           </Text>
         </Box>
         <Text fontSize="18px" bold mt="32px">

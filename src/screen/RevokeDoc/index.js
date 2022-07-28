@@ -38,7 +38,7 @@ export default function Index(props) {
           </Box>
 
           <Box flex={1} pr="22px" pl="12px" pt="26px" pb="32px">
-            <Text>Tap to upload files</Text>
+            <Text bold>Tap to upload files</Text>
             <Text color="#00000073" fontSize={10}>
               Upload your configuration file to revoke document
             </Text>
