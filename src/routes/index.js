@@ -11,6 +11,7 @@ import Profile from '../screen/Profile';
 import About from '../screen/About';
 import VerifyDoc from '../screen/VerifyDocment';
 import RevokeDoc from '../screen/RevokeDoc';
+import RevokeDocsReview from '../screen/RevokeDocsReview';
 const routes = [
   {
     component: WelcomeScreen,
@@ -70,6 +71,14 @@ const routes = [
     name: 'RevokeDoc',
     options: {
       title: 'Revoke Document',
+    },
+  },
+  {
+    component: RevokeDocsReview,
+    name: 'RevokeDocsReview',
+    options: {
+      title: '',
+      headerShown: false,
     },
   },
   {

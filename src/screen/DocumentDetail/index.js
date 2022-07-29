@@ -11,45 +11,44 @@ import {useTheme} from 'native-base';
 import Constants, {getStorage} from '../../util/Constants';
 import moment from 'moment';
 import {getDidDocument} from '../../libs/fuixlabs-documentor/utils/document';
-import RNFS from 'react-native-fs';
-import {saltData} from '../../libs/fuixlabs-documentor/utils/data';
-import {Platform} from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
-import {PermissionsAndroid} from 'react-native';
+// import RNFS from 'react-native-fs';
+// import {saltData} from '../../libs/fuixlabs-documentor/utils/data';
+// import {PermissionsAndroid} from 'react-native';
 const _contentContainerStyle = {flexGrow: 1, backgroundColor: '#607077'};
 export default function DocumentDetail(props) {
   const {colors} = useTheme();
   const [info, setInfo] = useState();
   const [requesting, setRequesting] = useState(true);
   let navigation = props.navigation;
+
   let document = {};
   if (props.route.params.document) {
     document = props.route.params.document;
   }
-  const requestCameraPermission = async () => {
-    console.log(PermissionsAndroid.PERMISSIONS);
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        {
-          title: 'Cool Photo App Camera Permission',
-          message:
-            'Cool Photo App needs access to your camera ' +
-            'so you can take awesome pictures.',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('You can use the camera');
-      } else {
-        console.log('Camera permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
+  // const requestCameraPermission = async () => {
+  //   console.log(PermissionsAndroid.PERMISSIONS);
+  //   try {
+  //     const granted = await PermissionsAndroid.request(
+  //       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+  //       {
+  //         title: 'Cool Photo App Camera Permission',
+  //         message:
+  //           'Cool Photo App needs access to your camera ' +
+  //           'so you can take awesome pictures.',
+  //         buttonNeutral: 'Ask Me Later',
+  //         buttonNegative: 'Cancel',
+  //         buttonPositive: 'OK',
+  //       },
+  //     );
+  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //       console.log('You can use the camera');
+  //     } else {
+  //       console.log('Camera permission denied');
+  //     }
+  //   } catch (err) {
+  //     console.warn(err);
+  //   }
+  // };
 
   const renderAsset = () => {
     if (!isCanTrade(name)) {
@@ -102,27 +101,27 @@ export default function DocumentDetail(props) {
     }
     setRequesting(false);
   };
-  const download = async () => {
-    try {
-      await requestCameraPermission();
-      let _name = (Math.random() + 1).toString(36).substring(7);
-      // let dir = await DocumentPicker.pickDirectory();
-      // console.log(dir.uri);
-      let path =
-        `content://com.android.providers.downloads.documents/document/` +
-        `${_name}.fl`;
-      // `content://com.android.providers.downloads.documents/document` +
-      // dir.uri + `/${_name}.fl`;
-      console.log('path', 'path2', path);
+  // const download = async () => {
+  //   try {
+  //     await requestCameraPermission();
+  //     let _name = (Math.random() + 1).toString(36).substring(7);
+  //     // let dir = await DocumentPicker.pickDirectory();
+  //     // console.log(dir.uri);
+  //     let path =
+  //       `content://com.android.providers.downloads.documents/document/` +
+  //       `${_name}.fl`;
+  //     // `content://com.android.providers.downloads.documents/document` +
+  //     // dir.uri + `/${_name}.fl`;
+  //     console.log('path', 'path2', path);
 
-      let _document = saltData(document);
-      delete _document.history;
-      await RNFS.writeFile(path, JSON.stringify(_document), 'utf8');
-      console.log('FILE WRITTEN!');
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  //     let _document = saltData(document);
+  //     delete _document.history;
+  //     await RNFS.writeFile(path, JSON.stringify(_document), 'utf8');
+  //     console.log('FILE WRITTEN!');
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
   return (
     <Box {...styles.container}>
       <Flex {...styles.header}>
@@ -133,7 +132,7 @@ export default function DocumentDetail(props) {
           <MaterialCommunityIcons name="arrow-left" size={28} color="black" />
         </TouchableOpacity>
         <Text bold fontSize={18} ml="8px" flex={1}>
-          {name}
+          {props.title || name}
         </Text>
         {/* <TouchableOpacity onPress={download}>
           <MaterialCommunityIcons

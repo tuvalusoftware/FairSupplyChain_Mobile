@@ -100,7 +100,6 @@ export default function Index(props) {
       });
       setError(null);
       setDocError(null);
-      console.log('res', res);
       if (res && res[0] && res[0].uri) {
         let endFile = res[0].name.split('.');
         if (endFile[endFile.length - 1] !== 'fl') {
@@ -192,17 +191,6 @@ export default function Index(props) {
                   Upload your (.fl) file to view its contents
                 </Text>
                 <Text color="red.500">{error}</Text>
-                <Flex
-                  direction="row"
-                  alignItems="center"
-                  justifyContent="center"
-                  mt="12px">
-                  <Divider w="34%" bg="#00000019" />
-                  <Text bold mx="22px">
-                    Or
-                  </Text>
-                  <Divider w="34%" bg="#00000019" />
-                </Flex>
                 <Button
                   color="primary"
                   isDisabled={!file || isRequesting}
@@ -211,7 +199,7 @@ export default function Index(props) {
                   onPress={connectedAuthServer ? verify : onOpen}
                   isLoading={isRequesting}
                   isLoadingText="Select Document">
-                  Select Document
+                  Verify Document
                 </Button>
               </Box>
             </Flex>

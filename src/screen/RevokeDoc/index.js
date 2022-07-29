@@ -8,11 +8,58 @@ import {Box, Text, Divider, Flex, Button} from 'native-base';
 import {TouchableOpacity} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTheme} from 'native-base';
+import {useNavigation} from '@react-navigation/core';
+import DocumentPicker from 'react-native-document-picker';
+import Constants, {getStorage} from '../../util/Constants';
+import {deepUnsalt} from '../../libs/fuixlabs-documentor/utils/data';
+import RNFS from 'react-native-fs';
+import {getHistory} from '../../util/script';
 export default function Index(props) {
+  const [file, setFile] = useState(null);
+  const [error, setError] = useState(null);
   const {colors} = useTheme();
+  const navigation = useNavigation();
+  const [document, setDocument] = useState(null);
+
+  const pickDocument = async () => {
+    try {
+      // console.log(await DocumentPicker.pickDirectory());
+      const res = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
+      setError(null);
+      setDocument(null);
+      setFile(null);
+      console.log('res', res);
+      if (res && res[0] && res[0].uri) {
+        let endFile = res[0].name.split('.');
+        if (endFile[endFile.length - 1] !== 'fl') {
+          setError('Extension is not valid!');
+          return;
+        }
+        setFile(res[0]);
+        let data = await RNFS.readFile(res[0].uri);
+        data = JSON.parse(data);
+        let access_token = await getStorage(Constants.STORAGE.access_token);
+        let _document = deepUnsalt(data);
+        let {policy} = _document.mintingNFTConfig;
+        let history = await getHistory(policy?.id, access_token);
+        _document = {..._document, history};
+        console.log('_document', _document);
+        setDocument(_document);
+      }
+    } catch (e) {
+      // error
+      console.log('pickDocument', e);
+    }
+  };
+  const selectDoc = () => {
+    navigation.navigate('RevokeDocsReview', {document});
+  };
+
   return (
     <Box bg="white" p="12px">
-      <TouchableOpacity onPress={() => {}}>
+      <TouchableOpacity onPress={pickDocument}>
         <Flex
           justifyContent="center"
           flexDirection="row"
@@ -38,22 +85,17 @@ export default function Index(props) {
           </Box>
 
           <Box flex={1} pr="22px" pl="12px" pt="26px" pb="32px">
-            <Text bold>Tap to upload files</Text>
+            <Text bold>{file?.name || 'Tap to upload files'}</Text>
             <Text color="#00000073" fontSize={10}>
               Upload your configuration file to revoke document
             </Text>
-            <Flex
-              direction="row"
-              alignItems="center"
-              justifyContent="center"
-              mt="12px">
-              <Divider w="34%" bg="#00000019" />
-              <Text bold mx="22px">
-                Or
-              </Text>
-              <Divider w="34%" bg="#00000019" />
-            </Flex>
-            <Button color="primary" borderRadius="30px" mt="32px">
+            <Text color="red.500">{error}</Text>
+            <Button
+              onPress={selectDoc}
+              color="primary"
+              borderRadius="30px"
+              mt="32px"
+              isDisabled={!Boolean(document)}>
               Select Document
             </Button>
           </Box>

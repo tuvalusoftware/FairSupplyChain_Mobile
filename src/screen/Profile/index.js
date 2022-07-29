@@ -14,7 +14,7 @@ import ChangeNetwork from '../../components/ChangeNetwork';
 import styles from './styles';
 import LoginSheet from '../../components/LoginSheet';
 import Constants, {setStorage} from '../../util/Constants';
-import {Alert} from 'react-native';
+import Alert from '../../components/Alert';
 const Row = ({data}) => {
   const {colors} = useTheme();
 
@@ -85,6 +85,7 @@ export default function Index(props) {
   const user = useShallowEqualSelector(state => state.user);
   const [openLogin, setOpenLogin] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
+  const [openConfirmLogout, setOpenConfirmLogout] = useState(false);
   const dispatch = useDispatch();
 
   let navigation = props.navigation;
@@ -101,25 +102,9 @@ export default function Index(props) {
   };
 
   const _logout = () => {
-    Alert.alert('Logout', 'Do you really want to logout?', [
-      {
-        text: '',
-        onPress: () => console.log('Ask me later pressed'),
-      },
-      {
-        text: 'Cancel',
-        onPress: () => console.log('Cancel Pressed'),
-        style: 'cancel',
-      },
-      {
-        text: 'Logout',
-        onPress: () => {
-          dispatch(logout());
-          navigation.navigate('Home');
-          navigation.navigate('Welcome');
-        },
-      },
-    ]);
+    dispatch(logout());
+    navigation.navigate('Home');
+    navigation.navigate('Welcome');
   };
   let asset = user?.userInfo?.assets[0];
   const ROWS = [
@@ -187,7 +172,7 @@ export default function Index(props) {
           </Box>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => _logout(true)}>
+        <TouchableOpacity onPress={() => setOpenConfirmLogout(true)}>
           <Box
             w="full"
             bg="white"
@@ -213,6 +198,36 @@ export default function Index(props) {
         setOpenLogin={setOpenLogin}
         hideChangeNetwork
         // error={error}
+      />
+      <Alert
+        isOpen={openConfirmLogout}
+        onClose={() => setOpenConfirmLogout(false)}
+        message="Do you really want to logout?"
+        title="Logout"
+        buttons={[
+          {
+            text: 'Cancel',
+            bg: '#2190DE19',
+            borderWidth: '1px',
+            borderColor: '#2190DE',
+            _text: {
+              color: '#2190DE',
+            },
+            w: '30%',
+            onPress: () => setOpenConfirmLogout(false),
+          },
+          {
+            text: 'Logout',
+            bg: '#2190DE',
+            borderWidth: '1px',
+            borderColor: '#2190DE',
+            _text: {
+              color: 'white',
+            },
+            w: '60%',
+            onPress: _logout,
+          },
+        ]}
       />
     </Box>
   );
