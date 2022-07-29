@@ -72,7 +72,7 @@ export default function Index({containerStyle, isRequesting, onChangeNetwork}) {
           <Radio isDisabled={isRequesting} value={NETWORK_ID.testnet}>
             Testnet
           </Radio>
-          <Radio isDisabled={isRequesting} value={NETWORK_ID.mainnet}>
+          <Radio isDisabled={true} value={NETWORK_ID.mainnet}>
             Mainnet
           </Radio>
         </Stack>

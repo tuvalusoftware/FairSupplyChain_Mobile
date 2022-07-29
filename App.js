@@ -13,6 +13,7 @@ import {Provider, useDispatch} from 'react-redux';
 import rootReducer from './src/redux/store';
 import {userSliceActions} from './src/redux/reducer/user';
 import Onboarding from './src/screen/Onboarding';
+import CodePush from 'react-native-code-push';
 import {
   getCurrentAccount,
   getNetwork,
@@ -34,6 +35,9 @@ LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 // const _contentContainerStyle = {flexGrow: 1};
 let interval;
+const CODE_PUSH_OPTIONS = {
+  checkFrequency: CodePush.CheckFrequency.ON_APP_START,
+};
 const Stack = createNativeStackNavigator();
 const App = () => {
   const dispatch = useDispatch();
@@ -158,10 +162,22 @@ const App = () => {
   );
 };
 
-export default function Container(props) {
+function Container(props) {
+  useEffect(() => {
+    CodePush.sync(
+      {installMode: CodePush.InstallMode.IMMEDIATE},
+      syncWithCodePush,
+    );
+  }, []);
+
+  const syncWithCodePush = status => {
+    console.log('Codepush sync status', status);
+  };
   return (
     <Provider store={rootReducer}>
       <App {...props} />
     </Provider>
   );
 }
+
+export default CodePush(CODE_PUSH_OPTIONS)(Container);

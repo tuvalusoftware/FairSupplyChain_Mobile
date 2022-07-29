@@ -198,7 +198,7 @@ export default function Index(props) {
                   mt="32px"
                   onPress={connectedAuthServer ? verify : onOpen}
                   isLoading={isRequesting}
-                  isLoadingText="Select Document">
+                  isLoadingText="Verify Document">
                   Verify Document
                 </Button>
               </Box>

@@ -5,7 +5,7 @@
  */
 import React, {useState} from 'react';
 import {TouchableOpacity} from 'react-native';
-import {Box, Spinner, Flex, Icon, Input, ScrollView} from 'native-base';
+import {Box, Icon, Input, ScrollView} from 'native-base';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Constants, {getStorage} from '../../util/Constants';
 import {searchTransition} from '../../util/script';
@@ -55,6 +55,7 @@ export default function Index(props) {
           InputRightElement={
             filter ? (
               <TouchableOpacity
+                disabled={isFetching}
                 onPress={() => {
                   setFilter(null);
                   setDocuments([]);
@@ -96,19 +97,10 @@ export default function Index(props) {
             navigation={props.navigation}
             hideSort={true}
             hideTitle={true}
+            isFetching={isFetching}
           />
         </ScrollView>
       </Box>
-      {isFetching && (
-        <Flex
-          height="full"
-          alignItems="center"
-          justifyContent="center"
-          position="absolute"
-          w="full">
-          <Spinner color="cyan.500" size="lg" />
-        </Flex>
-      )}
     </>
   );
 }

@@ -11,9 +11,6 @@ import {useTheme} from 'native-base';
 import Constants, {getStorage} from '../../util/Constants';
 import moment from 'moment';
 import {getDidDocument} from '../../libs/fuixlabs-documentor/utils/document';
-// import RNFS from 'react-native-fs';
-// import {saltData} from '../../libs/fuixlabs-documentor/utils/data';
-// import {PermissionsAndroid} from 'react-native';
 const _contentContainerStyle = {flexGrow: 1, backgroundColor: '#607077'};
 export default function DocumentDetail(props) {
   const {colors} = useTheme();
@@ -73,7 +70,6 @@ export default function DocumentDetail(props) {
   };
   const {data, history = []} = document;
   const {name, issuers, fileName, companyName} = data;
-  // const {policy} = mintingNFTConfig;
   useEffect(() => {
     getHistory();
   }, []);
@@ -84,18 +80,6 @@ export default function DocumentDetail(props) {
     try {
       let didDoc = await getDidDocument(fileName, access_token, companyName);
       setInfo(didDoc.didDoc);
-      // console.log(companyName);
-      // let res = await _pullNFTs(
-      //   'resolver/nfts/',
-      //   {policyId: policy.id},
-      //   access_token,
-      // );
-      // console.log('res', res.data);
-      // let _history = res.data.data.map((item, index) => {
-      //   return item?.onchainMetadata[policy.id][item.assetName]?.timestamp;
-      // });
-      // _history.sort((a, b) => a - b);
-      // setHistory(_history);
     } catch (err) {
       console.log('getHistory', err);
     }

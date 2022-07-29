@@ -4,7 +4,7 @@
  * @author  NNTruong / nhuttruong6496@gmail.com
  */
 import React, {useState} from 'react';
-import {Box, Text, Divider, Flex, Button} from 'native-base';
+import {Box, Text, Flex, Button} from 'native-base';
 import {TouchableOpacity} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTheme} from 'native-base';
@@ -103,8 +103,8 @@ export default function Index(props) {
       </TouchableOpacity>
       <Flex direction="row" mt="22px" justifyContent="center">
         <Text bold>Don’t have a config file? </Text>
-        <TouchableOpacity>
-          <Text color="primary.500">Learn how to create one</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('CreateDocument')}>
+          <Text color="primary.500">Create one</Text>
         </TouchableOpacity>
       </Flex>
     </Box>

@@ -22,7 +22,7 @@ export default function Index(props) {
         <Box bg="white" p="12" borderRadius="8px">
           {' '}
           <Text color="black" bold textAlign="center">
-            Document do not support template
+            Document do not support this template
           </Text>
         </Box>
       );

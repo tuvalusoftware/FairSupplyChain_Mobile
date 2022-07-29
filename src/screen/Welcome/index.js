@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import styles from './styles';
 import {Button, Box, Center, Text, Image} from 'native-base';
 import logo from '../../images/logo.png';
@@ -9,13 +9,20 @@ import bip39 from 'react-native-bip39';
 import {useDispatch} from 'react-redux';
 import AuthForm from './AuthForm';
 import {userSliceActions} from '../../redux/reducer/user';
-
+// import {getAccounts} from '../../util/script';
 export default function Welcome(props) {
   let navigation = props.navigation;
   const dispatch = useDispatch();
   const [status, setStatus] = useState('');
   const [mnemonic, setMnemonic] = useState('');
   const onBack = () => setStatus('');
+  // useEffect(() => {
+  //   xx();
+  // });
+  // const xx = async () => {
+  //   let ac = await getAccounts();
+  //   console.log(ac);
+  // };
   const account = async (name, password) => {
     let _mnemonic = mnemonic;
     try {
