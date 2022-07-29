@@ -39,14 +39,18 @@ export default function Index(props) {
         {text: 'OK', onPress: () => console.log('OK Pressed')},
       ]);
     } catch (err) {
-      Alert.alert('Revoke Failed!', err.message, [
-        {
-          text: '',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
-        },
-        {text: 'OK', onPress: () => console.log('OK Pressed')},
-      ]);
+      Alert.alert(
+        'Revoke Failed!',
+        'The uploaded document is invalid or might have been revoked already.',
+        [
+          {
+            text: '',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {text: 'OK', onPress: () => console.log('OK Pressed')},
+        ],
+      );
       console.log('revoke error', err);
     }
     setIsRequesting(false);

@@ -10,7 +10,12 @@ import {isCanTrade} from '../../util/Constants';
 import {useTheme} from 'native-base';
 import Constants, {getStorage} from '../../util/Constants';
 import moment from 'moment';
+import {saltData} from '../../libs/fuixlabs-documentor/utils/data';
 import {getDidDocument} from '../../libs/fuixlabs-documentor/utils/document';
+import RNFS from 'react-native-fs';
+import DocumentPicker from 'react-native-document-picker';
+import {PermissionsAndroid} from 'react-native';
+import {Alert} from 'react-native';
 const _contentContainerStyle = {flexGrow: 1, backgroundColor: '#607077'};
 export default function DocumentDetail(props) {
   const {colors} = useTheme();
@@ -22,30 +27,30 @@ export default function DocumentDetail(props) {
   if (props.route.params.document) {
     document = props.route.params.document;
   }
-  // const requestCameraPermission = async () => {
-  //   console.log(PermissionsAndroid.PERMISSIONS);
-  //   try {
-  //     const granted = await PermissionsAndroid.request(
-  //       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-  //       {
-  //         title: 'Cool Photo App Camera Permission',
-  //         message:
-  //           'Cool Photo App needs access to your camera ' +
-  //           'so you can take awesome pictures.',
-  //         buttonNeutral: 'Ask Me Later',
-  //         buttonNegative: 'Cancel',
-  //         buttonPositive: 'OK',
-  //       },
-  //     );
-  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-  //       console.log('You can use the camera');
-  //     } else {
-  //       console.log('Camera permission denied');
-  //     }
-  //   } catch (err) {
-  //     console.warn(err);
-  //   }
-  // };
+  const requestCameraPermission = async () => {
+    console.log(PermissionsAndroid.PERMISSIONS);
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.MANAGE_DOCUMENTS,
+        {
+          title: 'Cool Photo App Camera Permission',
+          message:
+            'Cool Photo App needs access to your camera ' +
+            'so you can take awesome pictures.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('You can use the camera');
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
 
   const renderAsset = () => {
     if (!isCanTrade(name)) {
@@ -87,13 +92,13 @@ export default function DocumentDetail(props) {
   };
   // const download = async () => {
   //   try {
-  //     await requestCameraPermission();
+  //     // await requestCameraPermission();
+  //     // let x = await RNFS.getAllExternalFilesDirs();
+  //     // console.log(x);
   //     let _name = (Math.random() + 1).toString(36).substring(7);
-  //     // let dir = await DocumentPicker.pickDirectory();
-  //     // console.log(dir.uri);
-  //     let path =
-  //       `content://com.android.providers.downloads.documents/document/` +
-  //       `${_name}.fl`;
+  //     let dir = await DocumentPicker.pickDirectory();
+  //     // console.log(dir.uri.replace('%2F', '/').replace('%3A', ':'));
+  //     let path = RNFS.DocumentDirectoryPath + `/${_name}.fl`;
   //     // `content://com.android.providers.downloads.documents/document` +
   //     // dir.uri + `/${_name}.fl`;
   //     console.log('path', 'path2', path);
@@ -101,9 +106,26 @@ export default function DocumentDetail(props) {
   //     let _document = saltData(document);
   //     delete _document.history;
   //     await RNFS.writeFile(path, JSON.stringify(_document), 'utf8');
-  //     console.log('FILE WRITTEN!');
+  //     let f = new File(RNFS.DocumentDirectoryPath, `${_name}.fl`);
+  //     console.log('FILE WRITTEN!', f);
+  //     Alert.alert('Downloaded', path, [
+  //       {
+  //         text: '',
+  //         onPress: () => console.log('Cancel Pressed'),
+  //         style: 'cancel',
+  //       },
+  //       {text: 'OK', onPress: () => console.log('OK Pressed')},
+  //     ]);
   //   } catch (err) {
   //     console.log(err);
+  //     Alert.alert('Download Error', err.message, [
+  //       {
+  //         text: '',
+  //         onPress: () => console.log('Cancel Pressed'),
+  //         style: 'cancel',
+  //       },
+  //       {text: 'OK', onPress: () => console.log('OK Pressed')},
+  //     ]);
   //   }
   // };
   return (

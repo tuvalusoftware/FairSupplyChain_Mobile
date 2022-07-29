@@ -742,9 +742,9 @@ export const getTransitions = async () => {
     let transition = await _getTransactions(address, _access_token);
     console.log(transition);
     let data = await getWrappedDocumentsContent(transition, _access_token);
-    if (data && data[0]) {
-      console.log('xxxxx', JSON.stringify(data[0]));
-    }
+    // if (data && data[0]) {
+    //   console.log('xxxxx', JSON.stringify(data[0]));
+    // }
     data = data?.map((item, index) => ({
       ...deepUnsalt(item),
       status: transition[index]?.status,
