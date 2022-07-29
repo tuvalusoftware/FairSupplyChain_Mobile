@@ -10,9 +10,8 @@ import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelec
 import {revokeDocument} from '../../libs/fuixlabs-documentor';
 import Constants, {getStorage} from '../../util/Constants';
 import {useNavigation} from '@react-navigation/core';
-import {saltData} from '../../libs/fuixlabs-documentor/utils/data';
 import LoginSheet from '../../components/LoginSheet';
-import {Alert} from 'react-native';
+import {Alert, ScrollView} from 'react-native';
 export default function Index(props) {
   const [docError, setDocError] = useState(null);
   const [isRequesting, setIsRequesting] = useState(false);
@@ -52,7 +51,7 @@ export default function Index(props) {
     setIsRequesting(false);
   };
   return (
-    <Box>
+    <Box h="full" pb="80px">
       <DocumentDetail {...props} title="Revoke Document" />
       <Box
         bg="white"

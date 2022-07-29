@@ -143,7 +143,7 @@ export default function DocumentDetail(props) {
           ) : (
             <Box {...styles.box}>
               <Text {...styles.title}>Owner</Text>
-              <Text bold>{compact(info?.owner, 20, 'end')}</Text>
+              <Text bold>{compact(info?.owner, 20)}</Text>
             </Box>
           )}
           {requesting && !info ? (
@@ -151,7 +151,7 @@ export default function DocumentDetail(props) {
           ) : (
             <Box {...styles.box}>
               <Text {...styles.title}>Holder</Text>
-              <Text bold>{compact(info?.holder, 20, 'end')}</Text>
+              <Text bold>{compact(info?.holder, 20)}</Text>
             </Box>
           )}
 

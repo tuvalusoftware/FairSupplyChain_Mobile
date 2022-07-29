@@ -4,7 +4,7 @@
  * @author  NNTruong / nhuttruong6496@gmail.com
  */
 const styles = {
-  container: {h: 'full', pb: '4px'},
+  container: {flex: 1, pb: '4px'},
   header: {
     direction: 'row',
     alignItems: 'center',
