@@ -14,13 +14,19 @@ import Constants, {getStorage} from '../../util/Constants';
 import {deepUnsalt} from '../../libs/fuixlabs-documentor/utils/data';
 import RNFS from 'react-native-fs';
 import {getHistory} from '../../util/script';
+import {getAddress} from '../../util/script';
 export default function Index(props) {
   const [file, setFile] = useState(null);
   const [error, setError] = useState(null);
   const {colors} = useTheme();
   const navigation = useNavigation();
   const [document, setDocument] = useState(null);
-
+  const [isRequesting, setIsRequesting] = useState(false);
+  const isIssued = async document => {
+    const {issuers} = document.data;
+    let address = await getAddress();
+    return address === issuers[0].address;
+  };
   const pickDocument = async () => {
     try {
       // console.log(await DocumentPicker.pickDirectory());
@@ -30,31 +36,41 @@ export default function Index(props) {
       setError(null);
       setDocument(null);
       setFile(null);
-      console.log('res', res);
       if (res && res[0] && res[0].uri) {
         let endFile = res[0].name.split('.');
         if (endFile[endFile.length - 1] !== 'fl') {
           setError('Extension is not valid!');
           return;
         }
-        setFile(res[0]);
+
         let data = await RNFS.readFile(res[0].uri);
         data = JSON.parse(data);
-        let access_token = await getStorage(Constants.STORAGE.access_token);
-        let _document = deepUnsalt(data);
-        let {policy} = _document.mintingNFTConfig;
-        let history = await getHistory(policy?.id, access_token);
-        _document = {..._document, history};
-        console.log('_document', _document);
-        setDocument(_document);
+        let canRevoke = await isIssued(data);
+        if (!canRevoke) {
+          setError(
+            "You don't have the right to permission to revoke this document",
+          );
+          return;
+        }
+        setFile(res[0]);
+        setDocument(deepUnsalt(data));
       }
     } catch (e) {
       // error
       console.log('pickDocument', e);
     }
   };
-  const selectDoc = () => {
-    navigation.navigate('RevokeDocsReview', {document});
+  const selectDoc = async () => {
+    setIsRequesting(true);
+    let access_token = await getStorage(Constants.STORAGE.access_token);
+    let _document = deepUnsalt(document);
+    let {policy} = _document.mintingNFTConfig;
+    let history = await getHistory(policy?.id, access_token);
+    _document = {..._document, history};
+    console.log('_document', _document);
+    setDocument(_document);
+    setIsRequesting(false);
+    navigation.navigate('RevokeDocsReview', {document: _document});
   };
 
   return (
@@ -95,7 +111,9 @@ export default function Index(props) {
               color="primary"
               borderRadius="30px"
               mt="32px"
-              isDisabled={!Boolean(document)}>
+              isDisabled={!document || isRequesting}
+              isLoading={isRequesting}
+              isLoadingText="Select Document">
               Select Document
             </Button>
           </Box>

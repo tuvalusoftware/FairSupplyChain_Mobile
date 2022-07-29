@@ -22,7 +22,7 @@ import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelec
 import styles from './styles';
 import {createDocument} from '../../libs/fuixlabs-documentor';
 import {getStorage} from '../../util/Constants';
-import {signData, getAddress, signDataCIP30} from '../../util/script';
+import {getAddress, signDataCIP30} from '../../util/script';
 import LoginSheet from '../../components/LoginSheet';
 const _contentContainerStyle = {flexGrow: 1};
 export default function CreateDocument(props) {
@@ -115,13 +115,12 @@ export default function CreateDocument(props) {
     setError('');
   };
   const onChange = (text, key, parentKey) => {
-    let _data = {...data};
+    let _data = JSON.parse(JSON.stringify(data));
     if (parentKey) {
       _data[parentKey][key] = text;
     } else {
       _data[key] = text;
     }
-
     setData(_data);
   };
 
@@ -157,7 +156,10 @@ export default function CreateDocument(props) {
           </Text>
           <Input
             bg="#F5F5F5"
-            onChangeText={e => onChange(e, key, parentKey)}
+            onChangeText={e => {
+              console.log(key, parentKey);
+              onChange(e, key, parentKey);
+            }}
             value={form[key]}
             placeholder={'Enter ' + (Constants.FORM_LABEL[key] || key)}
             isDisabled={Constants.READ_ONLY_FIELD.includes(key)}
