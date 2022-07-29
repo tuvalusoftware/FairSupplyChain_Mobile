@@ -13,15 +13,13 @@ import {useNavigation} from '@react-navigation/core';
 import LoginSheet from '../../components/LoginSheet';
 import {Alert, ScrollView} from 'react-native';
 export default function Index(props) {
-  const [docError, setDocError] = useState(null);
   const [isRequesting, setIsRequesting] = useState(false);
-  const {colors} = useTheme();
   const navigation = useNavigation();
   const {isOpen, onClose, onOpen} = useDisclose();
   const connectedAuthServer = useShallowEqualSelector(
     state => state.user.connectedAuthServer,
   );
-
+  console.log('connectedAuthServer', connectedAuthServer);
   const revoke = async () => {
     try {
       setIsRequesting(true);
@@ -29,11 +27,9 @@ export default function Index(props) {
       delete document.history;
       // document = saltData(document);
       let {mintingNFTConfig} = document;
-      console.log('mintingNFTConfig', mintingNFTConfig);
       let access_token = await getStorage(Constants.STORAGE.access_token);
-      let res = await revokeDocument(mintingNFTConfig, access_token);
-      console.log('res', res);
-      navigation.navigate('Home', {document});
+      await revokeDocument(mintingNFTConfig, access_token);
+      navigation.navigate('Main', {fetchNew: true});
       Alert.alert('Revoke Success!', 'Document is revoked!', [
         {
           text: '',
@@ -43,9 +39,14 @@ export default function Index(props) {
         {text: 'OK', onPress: () => console.log('OK Pressed')},
       ]);
     } catch (err) {
-      if (err.error_code) {
-        setDocError(true);
-      }
+      Alert.alert('Revoke Failed!', err.message, [
+        {
+          text: '',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {text: 'OK', onPress: () => console.log('OK Pressed')},
+      ]);
       console.log('revoke error', err);
     }
     setIsRequesting(false);

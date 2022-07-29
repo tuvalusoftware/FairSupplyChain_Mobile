@@ -12,6 +12,7 @@ const styles = {
     pr: '20px',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 9999,
   },
 };
 export default styles;

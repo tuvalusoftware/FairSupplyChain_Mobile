@@ -11,10 +11,11 @@ import {useTheme} from 'native-base';
 import {useNavigation} from '@react-navigation/core';
 import DocumentPicker from 'react-native-document-picker';
 import Constants, {getStorage} from '../../util/Constants';
-import {deepUnsalt} from '../../libs/fuixlabs-documentor/utils/data';
+import {deepUnsalt, unsalt} from '../../libs/fuixlabs-documentor/utils/data';
 import RNFS from 'react-native-fs';
 import {getHistory} from '../../util/script';
 import {getAddress} from '../../util/script';
+
 export default function Index(props) {
   const [file, setFile] = useState(null);
   const [error, setError] = useState(null);
@@ -22,10 +23,15 @@ export default function Index(props) {
   const navigation = useNavigation();
   const [document, setDocument] = useState(null);
   const [isRequesting, setIsRequesting] = useState(false);
-  const isIssued = async document => {
-    const {issuers} = document.data;
+  const isIssued = async _document => {
+    const {issuers} = _document.data;
     let address = await getAddress();
-    return address === issuers[0].address;
+    console.log(
+      'address === issuers[0].address;',
+      address,
+      unsalt(issuers[0].address),
+    );
+    return address === unsalt(issuers[0].address);
   };
   const pickDocument = async () => {
     try {

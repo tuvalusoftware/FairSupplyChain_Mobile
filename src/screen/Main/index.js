@@ -36,7 +36,9 @@ export default function Main(props) {
       initData();
     }
   }, [user.isLogged]);
+
   useEffect(() => {
+    console.log(props.route?.params?.fetchNew);
     if (props.route?.params?.fetchNew) {
       _getTransition();
     }

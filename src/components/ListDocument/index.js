@@ -67,6 +67,7 @@ export default function ListDocument(props) {
             borderWidth={0}
             color="black"
             fontWeight="bold"
+            mb="4px"
             _selectedItem={{
               bg: 'teal.600',
               _text: {

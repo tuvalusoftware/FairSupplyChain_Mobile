@@ -6,12 +6,18 @@ import {TouchableOpacity} from 'react-native';
 import {Dimensions} from 'react-native';
 import {Animated} from 'react-native';
 import useShallowEqualSelector from '../../redux/customHook/useShallowEqualSelector';
+import {getTransitions} from '../../util/script';
+import {documentsSliceActions} from '../../redux/reducer/documents';
+import {useDispatch} from 'react-redux';
 export default function Documents(props) {
   const documents = useShallowEqualSelector(state => state.documents.data);
   const [data] = useState(documents);
   const [dataRender, setDataRender] = useState(documents);
   const [status, setStatus] = useState(Constants.STATUS[0]);
-
+  // const {isFetching} = useShallowEqualSelector(state => ({
+  //   isFetching: state.documents.isFetching,
+  // }));
+  const dispatch = useDispatch();
   useEffect(() => {
     let newData = data.filter(item => item.status === status);
     setDataRender(newData);
@@ -19,6 +25,11 @@ export default function Documents(props) {
   }, [status, documents]);
   const onTabChange = _status => {
     setStatus(_status);
+  };
+  const onRefresh = async () => {
+    let _data = [];
+    _data = await getTransitions();
+    dispatch(documentsSliceActions.fetchDocuments({data: _data}));
   };
   return (
     <Box h="full" bg="white">
@@ -28,6 +39,8 @@ export default function Documents(props) {
           documents={dataRender}
           navigation={props.navigation}
           hideTitle={true}
+          // isFetching={isFetching}
+          onRefresh={onRefresh}
         />
       </Box>
     </Box>
@@ -60,6 +73,7 @@ function Tabs(props) {
       },
     ],
   };
+
   return (
     <Flex
       direction="row"

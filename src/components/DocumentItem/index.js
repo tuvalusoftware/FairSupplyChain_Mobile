@@ -4,11 +4,11 @@ import styles from './styles';
 import moment from 'moment';
 // import ButtonLink from '../ButtonLink';
 import {TouchableOpacity} from 'react-native';
-// import DocumentStatus from '../DocumentStatus';
+import DocumentStatus from '../DocumentStatus';
 import DocumentTemplate from '../DocumentTemplate';
 import QRImage from '../../images/QRImage.png';
 export default function DocumentItem(props) {
-  const {data, history} = props.document;
+  const {data, history, status} = props.document;
   const navigation = props.navigation;
   const {name} = data;
   return (
@@ -17,6 +17,7 @@ export default function DocumentItem(props) {
         navigation.navigate('DocumentDetail', {document: props.document})
       }>
       <Box {...styles.container}>
+        <DocumentStatus status={status} top="26px" />
         <Box h="310px" overflow="hidden" px="12px">
           <DocumentTemplate document={props.document} />
         </Box>
